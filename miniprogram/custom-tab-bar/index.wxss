@@ -1,0 +1,117 @@
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 76px;
+  background: #FFFFFF;
+  border-top: 1px solid #F0F0F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 999;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  color: #999999;
+  padding: 10px 30px;
+}
+
+.tab-item.active {
+  color: #3A7BD5;
+}
+
+.tab-item.active::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: 24px;
+  height: 3px;
+  background: #3A7BD5;
+  border-radius: 0 0 3px 3px;
+}
+
+.tab-label {
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.tab-item.active .tab-label {
+  font-weight: 700;
+}
+
+.tab-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 太阳图标 - CSS绘制 */
+.icon-sun {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sun-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sun-ray {
+  position: absolute;
+  width: 2px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.sun-ray.ray1 { top: 0; left: 13px; }
+.sun-ray.ray2 { top: 3px; right: 2px; transform: rotate(45deg); }
+.sun-ray.ray3 { top: 13px; right: 0; transform: rotate(90deg); }
+.sun-ray.ray4 { bottom: 3px; right: 2px; transform: rotate(135deg); }
+.sun-ray.ray5 { bottom: 0; left: 13px; transform: rotate(180deg); }
+.sun-ray.ray6 { bottom: 3px; left: 2px; transform: rotate(225deg); }
+.sun-ray.ray7 { top: 13px; left: 0; transform: rotate(270deg); }
+.sun-ray.ray8 { top: 3px; left: 2px; transform: rotate(315deg); }
+
+/* 药丸图标 - CSS绘制 */
+.icon-pill {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill-body {
+  width: 20px;
+  height: 9px;
+  border-radius: 5px;
+  background: currentColor;
+  transform: rotate(-45deg);
+}
+
+.pill-line {
+  position: absolute;
+  width: 2px;
+  height: 9px;
+  background: #FFFFFF;
+  transform: rotate(-45deg);
+  left: 11px;
+  top: 8px;
+}

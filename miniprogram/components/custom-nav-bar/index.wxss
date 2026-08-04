@@ -1,0 +1,24 @@
+.custom-nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  box-shadow: 0 1rpx 0 rgba(0, 0, 0, 0.04);
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.nav-placeholder {
+  width: 100%;
+}

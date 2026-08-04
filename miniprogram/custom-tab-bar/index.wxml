@@ -1,0 +1,35 @@
+<view class="tab-bar">
+  <view
+    wx:for="{{list}}"
+    wx:key="index"
+    class="tab-item {{selected === index ? 'active' : ''}}"
+    data-path="{{item.pagePath}}"
+    data-index="{{index}}"
+    bindtap="switchTab"
+  >
+    <view class="tab-icon">
+      <!-- 天气图标 -->
+      <block wx:if="{{index === 0}}">
+        <view class="icon-sun">
+          <view class="sun-circle"></view>
+          <view class="sun-ray ray1"></view>
+          <view class="sun-ray ray2"></view>
+          <view class="sun-ray ray3"></view>
+          <view class="sun-ray ray4"></view>
+          <view class="sun-ray ray5"></view>
+          <view class="sun-ray ray6"></view>
+          <view class="sun-ray ray7"></view>
+          <view class="sun-ray ray8"></view>
+        </view>
+      </block>
+      <!-- 用药图标 -->
+      <block wx:if="{{index === 1}}">
+        <view class="icon-pill">
+          <view class="pill-body"></view>
+          <view class="pill-line"></view>
+        </view>
+      </block>
+    </view>
+    <text class="tab-label">{{item.text}}</text>
+  </view>
+</view>

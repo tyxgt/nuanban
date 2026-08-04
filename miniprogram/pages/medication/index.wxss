@@ -1,0 +1,548 @@
+.medication-page {
+  min-height: 100vh;
+  background: #FFFFFF;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+/* 顶部标题栏 */
+.med-header {
+  padding: 24rpx 28rpx 20rpx;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.med-title {
+  font-size: 66rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  text-align: center;
+}
+
+.med-date {
+  font-size: 45rpx;
+  color: #999999;
+  text-align: center;
+}
+
+/* 下次服药卡片 */
+.next-med-card {
+  margin: 20rpx 24rpx;
+  background: linear-gradient(135deg, #4CAF7D 0%, #2E7D5B 100%);
+  border-radius: 28rpx;
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 125, 0.25);
+}
+
+.next-med-card.mock {
+  background: linear-gradient(135deg, #A8B8CA 0%, #7A8FA8 100%);
+  box-shadow: 0 8rpx 24rpx rgba(122, 143, 168, 0.25);
+}
+
+.next-med-icon {
+  width: 96rpx;
+  height: 96rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.clock-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border: 6rpx solid #FFFFFF;
+  border-radius: 50%;
+  position: relative;
+}
+
+.clock-icon::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4rpx;
+  height: 20rpx;
+  background: #FFFFFF;
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%) rotate(-45deg);
+}
+
+.clock-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6rpx;
+  height: 6rpx;
+  background: #FFFFFF;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.next-med-info {
+  flex: 1;
+  color: #FFFFFF;
+}
+
+.next-med-label {
+  font-size: 45rpx;
+  opacity: 0.9;
+  margin-bottom: 8rpx;
+}
+
+.next-med-time {
+  font-size: 120rpx;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 8rpx;
+}
+
+.next-med-countdown {
+  font-size: 42rpx;
+  opacity: 0.9;
+}
+
+.next-med-countdown.urgent {
+  color: #FFE082;
+  font-weight: 700;
+}
+
+.next-med-arrow {
+  width: 20rpx;
+  height: 20rpx;
+  border-right: 4rpx solid rgba(255, 255, 255, 0.8);
+  border-top: 4rpx solid rgba(255, 255, 255, 0.8);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+/* 用药计划区域 */
+.med-section {
+  padding: 0 24rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  margin-top: 8rpx;
+}
+
+.section-title {
+  font-size: 54rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.section-date {
+  font-size: 42rpx;
+  color: #999999;
+}
+
+/* 药品列表 */
+.med-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.med-item {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+  border: 1rpx solid #F0F0F0;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.03);
+}
+
+.med-item.active {
+  border-color: #3A7BD5;
+  background: #E8F2FC;
+}
+
+.med-period-icon {
+  width: 72rpx;
+  height: 72rpx;
+  background: #F5F9FF;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.med-item.active .med-period-icon {
+  background: #D6E4F7;
+}
+
+.period-emoji {
+  font-size: 60rpx;
+}
+
+.med-info {
+  flex: 1;
+}
+
+.med-top {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.med-time-label {
+  font-size: 42rpx;
+  color: #999999;
+}
+
+.med-time {
+  font-size: 60rpx;
+  font-weight: 800;
+  color: #1A1A1A;
+}
+
+.med-status-badge {
+  font-size: 36rpx;
+  font-weight: 600;
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  margin-left: auto;
+}
+
+.med-status-badge.taken {
+  background: #E3F5EC;
+  color: #4CAF7D;
+}
+
+.med-status-badge.pending {
+  background: #FFF8E1;
+  color: #C4902A;
+}
+
+.med-status-badge.upcoming {
+  background: #F0F0F0;
+  color: #666666;
+}
+
+/* 清单勾选框 */
+.check-box {
+  width: 56rpx;
+  height: 56rpx;
+  border: 4rpx solid #CCCCCC;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 8rpx;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+}
+
+.check-box.checked {
+  background: #4CAF7D;
+  border-color: #4CAF7D;
+}
+
+.check-mark {
+  font-size: 40rpx;
+  font-weight: 900;
+  color: #FFFFFF;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
+}
+
+.check-box.checked .check-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 已服用卡片整体样式：降低对比度 */
+.med-item.is-taken .med-time,
+.med-item.is-taken .med-name {
+  color: #999999;
+}
+.med-item.is-taken .med-dose,
+.med-item.is-taken .med-time-label {
+  color: #BBBBBB;
+}
+.med-item.is-taken .med-period-icon {
+  background: #F0F0F0;
+  opacity: 0.7;
+}
+
+.med-detail {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.med-name {
+  font-size: 51rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.med-dose {
+  font-size: 42rpx;
+  color: #666666;
+}
+
+.med-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-right: 3rpx solid #BBBBBB;
+  border-top: 3rpx solid #BBBBBB;
+  transform: rotate(45deg);
+  margin-left: auto;
+}
+
+/* 空状态 */
+.empty-state {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  border: 1rpx solid #F0F0F0;
+}
+
+/* 加载状态 */
+.loading-state {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  border: 1rpx solid #F0F0F0;
+}
+
+.loading-text {
+  font-size: 42rpx;
+  color: #999999;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-text {
+  font-size: 51rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+}
+
+.empty-hint {
+  font-size: 42rpx;
+  color: #999999;
+}
+
+/* 用药小贴士（沿用温馨提示黄卡风格） */
+.tips-card {
+  margin: 24rpx;
+  background: #FFF8E1;
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+  border: 1rpx solid #FAF0CC;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.tips-icon {
+  font-size: 54rpx;
+}
+
+.tips-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #8A6D1F;
+}
+
+.tips-content {
+  font-size: 45rpx;
+  color: #8A6D1F;
+  line-height: 1.55;
+  padding-left: 48rpx;
+}
+
+/* 添加按钮 - 蓝色虚线 */
+.add-med-btn {
+  margin: 0 24rpx 32rpx;
+  background: #FFFFFF;
+  border: 3rpx dashed #3A7BD5;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  font-size: 51rpx;
+  font-weight: 700;
+  color: #3A7BD5;
+}
+
+.add-icon {
+  font-size: 66rpx;
+  line-height: 1;
+}
+
+/* 弹窗 */
+.dialog-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-content {
+  width: 85%;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 36rpx 32rpx;
+  border: 1rpx solid #F0F0F0;
+}
+
+.dialog-title {
+  font-size: 60rpx;
+  font-weight: 800;
+  color: #1A1A1A;
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+
+.form-item {
+  margin-bottom: 20rpx;
+}
+
+.form-label {
+  font-size: 42rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 10rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 100rpx;
+  background: #F7F9FC;
+  border: 1rpx solid #E0E8F0;
+  border-radius: 16rpx;
+  padding: 0 20rpx;
+  font-size: 45rpx;
+  color: #1A1A1A;
+  box-sizing: border-box;
+}
+
+.picker-text {
+  line-height: 100rpx;
+  color: #666666;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.dialog-btn {
+  flex: 1;
+  height: 100rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.dialog-btn.cancel {
+  background: #F0F0F0;
+  color: #666666;
+}
+
+.dialog-btn.confirm {
+  background: #3A7BD5;
+  color: #FFFFFF;
+  box-shadow: 0 4rpx 12rpx rgba(58, 123, 213, 0.25);
+}
+
+/* 操作弹窗 */
+.action-sheet {
+  width: 85%;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  border: 1rpx solid #F0F0F0;
+}
+
+.action-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  text-align: center;
+  margin-bottom: 24rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx;
+  background: #F7F9FC;
+  border-radius: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.action-item.danger {
+  background: #FFEBEE;
+}
+
+.action-icon {
+  font-size: 54rpx;
+}
+
+.action-text {
+  font-size: 48rpx;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.action-item.danger .action-text {
+  color: #E53935;
+}
+
+.action-cancel {
+  text-align: center;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #999999;
+  padding: 24rpx;
+  margin-top: 8rpx;
+}

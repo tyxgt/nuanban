@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/weather/index",
+    "pages/medication/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "暖伴",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#3A7BD5",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/weather/index",
+        "text": "天气"
+      },
+      {
+        "pagePath": "pages/medication/index",
+        "text": "用药提醒"
+      }
+    ]
+  },
+  "requiredPrivateInfos": ["getLocation"],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于获取当地天气"
+    }
+  },
+  "usingComponents": {},
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

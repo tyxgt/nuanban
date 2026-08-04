@@ -1,0 +1,29 @@
+/* app.wxss - 全局蓝色天空主题样式 */
+page {
+  --bg: #FFFFFF;
+  --card: #FFFFFF;
+  --primary: #3A7BD5;
+  --primary-light: #E8F2FC;
+  --primary-dark: #2C5FA8;
+  --text: #1A1A1A;
+  --text-secondary: #666666;
+  --text-light: #999999;
+  --border: #F0F0F0;
+  --success: #4CAF7D;
+  --success-light: #E3F5EC;
+  --warning: #F5A623;
+  --warning-light: #FFF8E1;
+  --danger: #E5524A;
+  --danger-light: #FFEBE9;
+  --blue: #4A90D9;
+  --blue-light: #E8F2FC;
+  --hero-gradient: linear-gradient(180deg, #7EC8FC 0%, #4A90D9 100%);
+  --shadow-soft: 0 4px 20px rgba(58, 123, 213, 0.08);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.04);
+  --shadow-button: 0 4px 12px rgba(58, 123, 213, 0.25);
+
+  background: var(--bg);
+  color: var(--text);
+  font-size: 24px;
+  font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
+}
