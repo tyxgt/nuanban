@@ -1,0 +1,137 @@
+.contact-page {
+  min-height: 100vh;
+  background: #FFFFFF;
+  padding: 24rpx 24rpx calc(100px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+/* 紧急联系主卡片 */
+.call-card {
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, #E5524A 0%, #C0392B 100%);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(229, 82, 74, 0.25);
+}
+
+.call-card-icon {
+  width: 96rpx;
+  height: 96rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* 电话听筒图标 - CSS绘制 */
+.phone-handset {
+  width: 44rpx;
+  height: 20rpx;
+  border-radius: 10rpx;
+  background: #FFFFFF;
+  transform: rotate(-30deg);
+  position: relative;
+}
+
+.phone-handset::before,
+.phone-handset::after {
+  content: '';
+  position: absolute;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  top: 1rpx;
+}
+
+.phone-handset::before { left: -8rpx; }
+.phone-handset::after { right: -8rpx; }
+
+.call-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.call-card-label {
+  font-size: 40rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.call-card-number {
+  font-size: 60rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
+.call-card-hint {
+  font-size: 36rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* 大拨号按钮 */
+.call-btn {
+  margin-top: 40rpx;
+  height: 120rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(135deg, #E5524A 0%, #C0392B 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(229, 82, 74, 0.3);
+}
+
+.call-btn:active {
+  opacity: 0.85;
+}
+
+.call-btn-icon {
+  font-size: 48rpx;
+  color: #FFFFFF;
+}
+
+.call-btn-text {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 拨打提示卡片 */
+.tips-card {
+  margin-top: 32rpx;
+  background: #FFF8E1;
+  border: 1rpx solid #FAF0CC;
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 12rpx;
+}
+
+.tips-icon {
+  font-size: 40rpx;
+}
+
+.tips-title {
+  font-size: 42rpx;
+  font-weight: 700;
+  color: #8A6D1F;
+}
+
+.tips-content {
+  font-size: 38rpx;
+  color: #8A6D1F;
+  line-height: 1.6;
+}

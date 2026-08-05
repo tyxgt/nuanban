@@ -2,7 +2,8 @@
   "pages": [
     "pages/weather/index",
     "pages/medication/index",
-    "pages/login/index"
+    "pages/login/index",
+    "pages/contact/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#FFFFFF",
@@ -24,6 +25,10 @@
       {
         "pagePath": "pages/medication/index",
         "text": "用药提醒"
+      },
+      {
+        "pagePath": "pages/contact/index",
+        "text": "紧急联系"
       }
     ]
   },

@@ -29,6 +29,12 @@
           <view class="pill-line"></view>
         </view>
       </block>
+      <!-- 电话图标 -->
+      <block wx:if="{{index === 2}}">
+        <view class="icon-phone">
+          <view class="phone-handset"></view>
+        </view>
+      </block>
     </view>
     <text class="tab-label">{{item.text}}</text>
   </view>

@@ -115,3 +115,36 @@
   left: 11px;
   top: 8px;
 }
+
+/* 电话图标 - CSS绘制 */
+.icon-phone {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phone-handset {
+  width: 18px;
+  height: 8px;
+  border-radius: 4px;
+  background: currentColor;
+  transform: rotate(-30deg);
+  position: relative;
+}
+
+.phone-handset::before,
+.phone-handset::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  top: 0px;
+}
+
+.phone-handset::before { left: -3px; }
+.phone-handset::after { right: -3px; }
