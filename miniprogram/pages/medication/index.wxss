@@ -40,7 +40,7 @@
   box-shadow: 0 8rpx 24rpx rgba(76, 175, 125, 0.25);
 }
 
-.next-med-card.mock {
+.next-med-card.empty-card {
   background: linear-gradient(135deg, #A8B8CA 0%, #7A8FA8 100%);
   box-shadow: 0 8rpx 24rpx rgba(122, 143, 168, 0.25);
 }
@@ -145,8 +145,9 @@
 }
 
 .section-date {
-  font-size: 42rpx;
-  color: #999999;
+  font-size: 50rpx;
+  color: #000000;
+  font-weight: 600;
 }
 
 /* 药品列表 */

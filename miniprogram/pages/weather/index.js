@@ -67,7 +67,8 @@ Page({
     dateStr: '',
     weekDay: '',
     weatherEmoji: '🌤️',
-    tipText: ''
+    tipText: '',
+    nickname: ''
   },
 
   onLoad() {
@@ -80,6 +81,12 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ selected: 0 })
     }
+    const nickname = wx.getStorageSync('user_nickname') || ''
+    this.setData({ nickname })
+  },
+
+  goLogin() {
+    wx.navigateTo({ url: '/pages/login/index' })
   },
 
   async loadWeather() {
@@ -113,7 +120,7 @@ Page({
             const isMock = res.result.msg && res.result.msg.includes('Mock')
 
             const weather = {
-              location: location.isDefault ? '北京市 朝阳区' : '当前位置',
+              location: data.city || (location.isDefault ? '北京市' : '当前位置'),
               temp: data.now.temp,
               text: data.now.text,
               feelsLike: data.now.feelsLike,

@@ -1,11 +1,12 @@
 <view class="weather-page">
-  <!-- 定位栏 -->
-  <!-- <view class="location-bar">
-    <view class="location-left">
-      <text class="loc-icon">📍</text>
-      <text class="loc-text">{{weather.location || '定位中...'}}</text>
+  <!-- 用户栏 -->
+  <view class="user-bar" bindtap="goLogin">
+    <view class="user-bar-left">
+      <text class="user-icon">👋</text>
+      <text class="user-nickname {{nickname ? '' : 'unset'}}">{{nickname || '点击设置昵称'}}</text>
     </view>
-  </view> -->
+    <text class="user-arrow">›</text>
+  </view>
 
   <!-- Hero 天气卡片（蓝渐变） -->
   <view class="weather-hero">
@@ -22,6 +23,12 @@
       <view class="hero-right">
         <view class="hero-weather-icon">{{weatherEmoji}}</view>
       </view>
+    </view>
+
+    <!-- 右下角位置 -->
+    <view class="hero-location">
+      <!-- <text class="hero-loc-icon">📍</text> -->
+      <text class="hero-loc-text">{{weather.location || '定位中...'}}</text>
     </view>
   </view>
 

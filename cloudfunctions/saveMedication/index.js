@@ -102,6 +102,16 @@ async function editMedication(id, medication, openid) {
 
 // 删除用药记录
 async function deleteMedication(id, openid) {
+  if (!id) {
+    return { code: -1, msg: '药物ID不存在', data: null }
+  }
+  const existing = await db.collection('medications').doc(id).get()
+  if (!existing.data) {
+    return { code: -1, msg: '药物记录不存在', data: null }
+  }
+  if (existing.data._openid !== openid) {
+    return { code: -1, msg: '无权删除该记录', data: null }
+  }
   await db.collection('medications').doc(id).remove()
   return { code: 0, msg: 'success', data: null }
 }

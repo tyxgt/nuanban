@@ -24,6 +24,8 @@ exports.main = async (event, context) => {
 
     // 实况天气
     const now = nowRes.now
+    // 城市信息（心知天气响应中自带 location 字段）
+    const loc = nowRes.location || {}
     // 3天预报
     const daily = dailyRes.daily || []
 
@@ -39,6 +41,7 @@ exports.main = async (event, context) => {
       code: 0,
       msg: 'success',
       data: {
+        city: loc.name || '',
         now: {
           temp: now.temperature,
           feelsLike: now.feels_like || now.temperature,
@@ -206,6 +209,7 @@ function getMockData(lat, lon, errorMsg) {
     code: errorMsg ? -1 : 0,
     msg: errorMsg ? '使用Mock数据: ' + errorMsg : '使用Mock数据（未配置API Key）',
     data: {
+      city: '北京',
       now: {
         temp: mockTemp,
         feelsLike: mockTemp - 1,

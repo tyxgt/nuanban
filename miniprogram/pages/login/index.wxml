@@ -1,0 +1,25 @@
+<view class="login-page">
+  <view class="login-header">
+    <view class="login-title">设置昵称</view>
+    <view class="login-subtitle">用于个性化您的暖伴</view>
+  </view>
+
+  <view class="login-form">
+    <view class="input-label">昵称</view>
+    <input
+      class="nickname-input"
+      type="nickname"
+      placeholder="点击选择微信昵称或自定义输入"
+      placeholder-class="nickname-placeholder"
+      maxlength="20"
+      value="{{nickname}}"
+      bindinput="onNicknameInput"
+    />
+    <view class="input-tip">点击输入框可选择微信昵称</view>
+  </view>
+
+  <view class="login-actions">
+    <button class="btn-primary" bindtap="onConfirm">保存昵称</button>
+    <view wx:if="{{hasNickname}}" class="btn-text" bindtap="onClear">清除昵称</view>
+  </view>
+</view>

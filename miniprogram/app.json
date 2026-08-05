@@ -1,11 +1,12 @@
 {
   "pages": [
     "pages/weather/index",
-    "pages/medication/index"
+    "pages/medication/index",
+    "pages/login/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#FFFFFF",
-    "navigationBarTitleText": "暖伴",
+    "navigationBarTitleText": "暖阳叮嘱",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#FFFFFF",
     "enablePullDownRefresh": false

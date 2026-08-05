@@ -6,6 +6,42 @@
   padding-bottom: calc(100px + env(safe-area-inset-bottom));
 }
 
+/* === 用户栏 === */
+.user-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 24rpx;
+  background: #FFFFFF;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.user-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.user-icon {
+  font-size: 48rpx;
+}
+
+.user-nickname {
+  font-size: 48rpx;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.user-nickname.unset {
+  color: #999999;
+  font-weight: 400;
+}
+
+.user-arrow {
+  font-size: 48rpx;
+  color: #999999;
+}
+
 /* === 页面标题 === */
 .page-header {
   display: flex;
@@ -76,7 +112,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 16rpx;
-  flex-wrap: wrap;
 }
 
 .hero-left {
@@ -110,6 +145,7 @@
   font-size: 55rpx;
   opacity: 0.95;
   margin-top: 10rpx;
+  white-space: nowrap;
 }
 
 .hero-right {
@@ -117,11 +153,33 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-bottom: 40px;
 }
 
 .hero-weather-icon {
-  font-size: 300rpx;
+  font-size: 250rpx;
   line-height: 1;
+}
+
+.hero-location {
+  position: absolute;
+  right: 50rpx;
+  bottom: 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 80rpx;
+  color: #FFFFFF;
+  opacity: 0.85;
+}
+
+.hero-loc-icon {
+  font-size: 40rpx;
+}
+
+.hero-loc-text {
+  font-size: 50rpx;
+  font-weight: 400;
 }
 
 /* === 内容区 === */
@@ -194,8 +252,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 16rpx;
+  padding: 20rpx 12rpx;
   border-bottom: 1rpx solid #F5F5F5;
+  overflow: hidden;
 }
 
 .forecast-item:last-child {
@@ -204,7 +263,6 @@
 
 .forecast-day-wrap {
   flex: 0 0 auto;
-  width: 180rpx;
   display: flex;
   flex-direction: column;
   gap: 6rpx;
@@ -222,13 +280,11 @@
 }
 
 .forecast-icon-wrap {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  min-width: 0;
 }
 
 .forecast-emoji {
@@ -248,7 +304,6 @@
   font-weight: 500;
   color: #1A1A1A;
   white-space: nowrap;
-  width: 240rpx;
   text-align: right;
 }
 

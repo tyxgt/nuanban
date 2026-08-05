@@ -17,14 +17,14 @@ function getPeriodIcon(periodLabel) {
   return '💊'
 }
 
-// 根据时间计算时段标签
+// 根据时间计算时段标签（只返回PERIOD_OPTIONS中的值，保证picker联动一致）
 function getPeriodByTime(time) {
   const hour = parseInt(time.split(':')[0])
-  if (hour < 6) return '凌晨'
+  if (hour < 6) return '早餐前'
   if (hour < 9) return '早餐后'
-  if (hour < 12) return '上午'
+  if (hour < 12) return '午餐前'
   if (hour < 14) return '午餐后'
-  if (hour < 18) return '下午'
+  if (hour < 18) return '晚餐前'
   if (hour < 21) return '晚餐后'
   return '睡前'
 }
@@ -98,49 +98,6 @@ function getStatusInfo(med) {
   }
 }
 
-// Mock数据（无云端数据时使用）
-function getMockData() {
-  const now = new Date()
-  const h = now.getHours()
-  const m = now.getMinutes()
-  
-  return [
-    {
-      _id: 'mock1',
-      name: '降压片',
-      dosage: '1片',
-      time: '08:00',
-      periodLabel: '早餐后',
-      status: 'taken',
-      takenAt: Date.now()
-    },
-    {
-      _id: 'mock2',
-      name: '维生素B族',
-      dosage: '1片',
-      time: '12:30',
-      periodLabel: '午餐后',
-      status: 'pending'
-    },
-    {
-      _id: 'mock3',
-      name: '钙片',
-      dosage: '1片',
-      time: '18:30',
-      periodLabel: '晚餐后',
-      status: 'pending'
-    },
-    {
-      _id: 'mock4',
-      name: '助眠片',
-      dosage: '1片',
-      time: '21:00',
-      periodLabel: '睡前',
-      status: 'pending'
-    }
-  ]
-}
-
 Page({
   data: {
     dateStr: formatDate(),
@@ -163,7 +120,8 @@ Page({
       time: '08:00',
       periodLabel: '早餐后'
     },
-    isMock: false
+    submitting: false,
+    allTaken: false
   },
 
   onLoad() {
@@ -216,18 +174,18 @@ Page({
     this.setData({ loading: true })
     try {
       const result = await getMedications()
-      if (result.code === 0 && result.data && result.data.length > 0) {
-        const meds = result.data
-        this.processMedications(meds, false)
+      if (result.code === 0 && result.data) {
+        this.processMedications(result.data)
       } else {
-        // 使用Mock数据
-        const mockMeds = getMockData()
-        this.processMedications(mockMeds, true)
+        this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
+        if (result.code !== 0) {
+          wx.showToast({ title: result.msg || '获取用药列表失败', icon: 'none' })
+        }
       }
     } catch (err) {
       console.error('获取用药列表失败:', err)
-      const mockMeds = getMockData()
-      this.processMedications(mockMeds, true)
+      this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
+      wx.showToast({ title: '获取用药列表失败', icon: 'none' })
     } finally {
       this.setData({ loading: false })
     }
@@ -238,7 +196,7 @@ Page({
     wx.stopPullDownRefresh()
   },
 
-  processMedications(meds, isMock) {
+  processMedications(meds) {
     // 处理每条药品记录
     const processedMeds = meds.map(med => {
       const statusInfo = getStatusInfo(med)
@@ -265,18 +223,20 @@ Page({
     const nextMed = this.findNextMedication(processedMeds)
     let countdown = ''
     let isUrgent = false
-    
+
     if (nextMed) {
       countdown = calcCountdown(nextMed.time)
       isUrgent = countdown.includes('分钟') && !countdown.includes('小时')
     }
+
+    const allTaken = !nextMed && processedMeds.length > 0
 
     this.setData({
       medications: processedMeds,
       nextMed,
       countdown,
       isUrgent,
-      isMock: isMock
+      allTaken
     })
   },
 
@@ -304,8 +264,8 @@ Page({
       return pastMeds[0]
     }
 
-    // 如果都已服用，返回第一条
-    return meds[0] || null
+    // 如果都已服用，返回null
+    return null
   },
 
   onMedTap(e) {
@@ -324,7 +284,6 @@ Page({
   },
 
   async toggleTakenStatus(medId) {
-    const { isMock } = this.data
     const targetId = medId || (this.data.currentMed && this.data.currentMed._id)
     if (!targetId) return
 
@@ -335,18 +294,6 @@ Page({
     const isTakenToday = med.status === 'taken' && isToday(med.takenAt)
     const newStatus = isTakenToday ? 'pending' : 'taken'
 
-    if (isMock) {
-      // Mock模式：本地更新status和takenAt
-      const meds = this.data.medications.map(m =>
-        m._id === targetId
-          ? { ...m, status: newStatus, takenAt: newStatus === 'taken' ? Date.now() : null }
-          : m
-      )
-      this.processMedications(meds, true)
-      wx.showToast({ title: newStatus === 'taken' ? '已标记' : '已取消', icon: 'success' })
-      return
-    }
-
     try {
       const result = await updateMedStatus(targetId, newStatus)
       if (result.code === 0) {
@@ -355,6 +302,8 @@ Page({
         }
         wx.showToast({ title: newStatus === 'taken' ? '已标记' : '已取消', icon: 'success' })
         this.loadMedications()
+      } else {
+        wx.showToast({ title: result.msg || '操作失败', icon: 'none' })
       }
     } catch (err) {
       console.error('更新状态失败:', err)
@@ -373,13 +322,7 @@ Page({
   },
 
   async deleteMed() {
-    const { currentMed, isMock } = this.data
-
-    if (isMock) {
-      wx.showToast({ title: '示例数据不可删除', icon: 'none' })
-      this.setData({ showActionSheet: false })
-      return
-    }
+    const { currentMed } = this.data
 
     wx.showModal({
       title: '确认删除',
@@ -392,6 +335,8 @@ Page({
               wx.showToast({ title: '已删除', icon: 'success' })
               this.setData({ showActionSheet: false })
               this.loadMedications()
+            } else {
+              wx.showToast({ title: result.msg || '删除失败', icon: 'none' })
             }
           } catch (err) {
             console.error('删除失败:', err)
@@ -462,6 +407,8 @@ Page({
     this.setData({ showDialog: false })
   },
 
+  onDialogTap() {},
+
   onInputChange(e) {
     const { field } = e.currentTarget.dataset
     this.setData({ [`newMed.${field}`]: e.detail.value })
@@ -491,6 +438,8 @@ Page({
   },
 
   async confirmAdd() {
+    if (this.data.submitting) return
+
     const { name, dosage, time, periodLabel } = this.data.newMed
     const { dialogMode, editingId } = this.data
 
@@ -503,22 +452,16 @@ Page({
       return
     }
 
-    if (this.data.isMock) {
-      wx.showToast({ title: '请先配置数据', icon: 'none' })
+    // 检查重复（添加和编辑模式，编辑时排除自身）
+    const exists = this.data.medications.find(m =>
+      m.name === name.trim() && m.time === time && m._id !== editingId
+    )
+    if (exists) {
+      wx.showToast({ title: '该药品已存在相同时间记录', icon: 'none' })
       return
     }
 
-    // 检查重复（仅添加模式）
-    if (dialogMode === 'add') {
-      const exists = this.data.medications.find(m =>
-        m.name === name.trim() && m.time === time
-      )
-      if (exists) {
-        wx.showToast({ title: '该药品已存在相同时间记录', icon: 'none' })
-        return
-      }
-    }
-
+    this.setData({ submitting: true })
     try {
       if (dialogMode === 'edit') {
         const result = await updateMedication(editingId, {
@@ -550,11 +493,15 @@ Page({
           wx.showToast({ title: '添加成功', icon: 'success' })
           this.setData({ showDialog: false })
           this.loadMedications()
+        } else {
+          wx.showToast({ title: result.msg || '添加失败，请重试', icon: 'none' })
         }
       }
     } catch (err) {
       console.error(dialogMode === 'edit' ? '修改药物失败:' : '添加药物失败:', err)
       wx.showToast({ title: dialogMode === 'edit' ? '修改失败' : '添加失败', icon: 'none' })
+    } finally {
+      this.setData({ submitting: false })
     }
   }
 })
