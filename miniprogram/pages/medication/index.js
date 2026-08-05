@@ -1,8 +1,8 @@
 // pages/medication/index.js
 const { getMedications, addMedication, updateMedStatus, updateMedication, deleteMedication, requestSubscribe } = require('../../utils/medication.js')
 
-// 订阅消息模板ID（TODO: 替换为你的模板ID）
-const TEMPLATE_ID = 'your-template-id'
+// 订阅消息模板ID
+const TEMPLATE_ID = '70Qu5rZyfa13-GFoqUXvP5rzraVPp6C8u1P-coGFIa4'
 
 // 时段配置
 const PERIOD_OPTIONS = ['早餐前', '早餐后', '午餐前', '午餐后', '晚餐前', '晚餐后', '睡前']
@@ -297,9 +297,6 @@ Page({
     try {
       const result = await updateMedStatus(targetId, newStatus)
       if (result.code === 0) {
-        if (newStatus === 'taken') {
-          requestSubscribe(TEMPLATE_ID)
-        }
         wx.showToast({ title: newStatus === 'taken' ? '已标记' : '已取消', icon: 'success' })
         this.loadMedications()
       } else {
@@ -478,7 +475,7 @@ Page({
           wx.showToast({ title: result.msg || '修改失败，请重试', icon: 'none' })
         }
       } else {
-        await requestSubscribe(TEMPLATE_ID)
+        const subscribed = await requestSubscribe(TEMPLATE_ID)
 
         const result = await addMedication({
           name: name.trim(),
@@ -486,7 +483,7 @@ Page({
           time,
           periodLabel: periodLabel.trim() || '按时服药',
           status: 'pending',
-          subscribeCount: 1
+          subscribeCount: subscribed ? 1 : 0
         })
 
         if (result.code === 0) {

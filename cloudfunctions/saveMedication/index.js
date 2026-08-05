@@ -117,18 +117,9 @@ async function deleteMedication(id, openid) {
 }
 
 // 增加订阅配额
+// 注意:微信一次性订阅"1次授权=1条消息",配额由前端在添加药物时
+// 直接写入对应记录(subscribeCount),此处不再批量给所有 pending 记录 +1,
+// 避免给未授权的记录产生虚假配额导致发送时被微信拒绝。
 async function addSubscribeCount(openid) {
-  // 为该用户所有用药记录增加1次订阅配额
-  const result = await db.collection('medications')
-    .where({ _openid: openid, status: 'pending' })
-    .get()
-
-  const promises = result.data.map(med =>
-    db.collection('medications').doc(med._id).update({
-      data: { subscribeCount: db.command.inc(1) }
-    })
-  )
-
-  await Promise.all(promises)
   return { code: 0, msg: 'success', data: null }
 }

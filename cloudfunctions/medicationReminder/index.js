@@ -3,21 +3,38 @@ const cloud = require('wx-server-sdk')
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
-// 订阅消息模板ID（TODO: 替换为你的模板ID）
-const TEMPLATE_ID = 'your-template-id'
+// 订阅消息模板ID
+const TEMPLATE_ID = '70Qu5rZyfa13-GFoqUXvP5rzraVPp6C8u1P-coGFIa4'
 
-// 判断时间戳是否为今天
+// 北京时间偏移(云函数运行在 UTC+0)
+const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000
+
+// 获取当前北京时间对应的 Date(配合 getUTC* 方法使用)
+function nowBeijing() {
+  return new Date(Date.now() + BEIJING_OFFSET_MS)
+}
+
+// 判断时间戳是否为北京时间今天
 function isToday(timestamp) {
   if (!timestamp) return false
-  const date = new Date(timestamp)
-  const now = new Date()
-  return date.getFullYear() === now.getFullYear()
-    && date.getMonth() === now.getMonth()
-    && date.getDate() === now.getDate()
+  const d = new Date(timestamp + BEIJING_OFFSET_MS)
+  const now = nowBeijing()
+  return d.getUTCFullYear() === now.getUTCFullYear()
+    && d.getUTCMonth() === now.getUTCMonth()
+    && d.getUTCDate() === now.getUTCDate()
+}
+
+// 格式化为订阅消息time字段要求的完整日期时间格式(北京时间)
+function formatSendTime(timeStr) {
+  const sendDate = nowBeijing()
+  const [h, m] = timeStr.split(':').map(Number)
+  sendDate.setUTCHours(h, m, 0, 0)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${sendDate.getUTCFullYear()}-${pad(sendDate.getUTCMonth() + 1)}-${pad(sendDate.getUTCDate())} ${pad(sendDate.getUTCHours())}:${pad(sendDate.getUTCMinutes())}`
 }
 
 exports.main = async (event, context) => {
-  const now = new Date()
+  const now = nowBeijing()
 
   try {
     // 查询所有有订阅配额的用药记录
@@ -35,7 +52,7 @@ exports.main = async (event, context) => {
       // 检查时间是否在5分钟窗口内
       const [medHour, medMinute] = med.time.split(':').map(Number)
       const medMinutes = medHour * 60 + medMinute
-      const currentMinutes = now.getHours() * 60 + now.getMinutes()
+      const currentMinutes = now.getUTCHours() * 60 + now.getUTCMinutes()
 
       if (Math.abs(currentMinutes - medMinutes) <= 5) {
         try {
@@ -44,12 +61,11 @@ exports.main = async (event, context) => {
             templateId: TEMPLATE_ID,
             page: 'pages/medication/index',
             data: {
-              thing1: { value: med.name },
-              time2: { value: med.time },
-              thing3: { value: med.dosage },
-              thing4: { value: med.periodLabel || '请按时服药' }
+              thing2: { value: `${med.name} ${med.dosage}`.slice(0, 20) },
+              time25: { value: formatSendTime(med.time) },
+              thing11: { value: (med.periodLabel || '请按时服药').slice(0, 20) }
             },
-            miniprogramState: 'formal'
+            miniprogramState: process.env.MINIAPP_STATE || 'developer'
           })
 
           // 扣减订阅次数

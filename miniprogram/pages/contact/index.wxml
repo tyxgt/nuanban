@@ -1,28 +1,110 @@
 <view class="contact-page">
-  <!-- 紧急联系主卡片 -->
-  <view class="call-card">
-    <view class="call-card-icon">
-      <view class="phone-handset"></view>
-    </view>
-    <view class="call-card-info">
-      <view class="call-card-label">紧急联系电话</view>
-      <view class="call-card-number">{{phoneNumber}}</view>
-      <view class="call-card-hint">点击下方按钮立即拨打</view>
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{contacts.length === 0 && !loading}}">
+    <view class="empty-icon">📞</view>
+    <view class="empty-text">还没有联系人</view>
+    <view class="empty-hint">点击下方按钮添加联系人</view>
+  </view>
+
+  <!-- 联系人列表 -->
+  <view class="contact-list" wx:else>
+    <view
+      class="contact-item"
+      wx:for="{{contacts}}"
+      wx:key="_id"
+      data-id="{{item._id}}"
+      bindtap="onContactTap"
+      bindlongpress="onContactLongPress"
+    >
+      <!-- 头像 -->
+      <view class="avatar-wrap">
+        <image
+          wx:if="{{item.avatarFileId}}"
+          class="avatar-img"
+          src="{{item.avatarFileId}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-fallback">{{item.name[0]}}</view>
+      </view>
+
+      <!-- 姓名 -->
+      <view class="contact-name">{{item.name}}</view>
+
+      <!-- 电话 -->
+      <view class="contact-phone">{{item.phone}}</view>
     </view>
   </view>
 
-  <!-- 大拨号按钮 -->
-  <view class="call-btn" bindtap="onCallTap">
-    <text class="call-btn-icon">📞</text>
-    <text class="call-btn-text">立即拨打</text>
+  <!-- 添加联系人按钮 -->
+  <view class="add-contact-btn" bindtap="showAddDialog">
+    <view class="add-icon">+</view>
+    <text>添加联系人</text>
   </view>
 
-  <!-- 拨打提示 -->
-  <view class="tips-card">
-    <view class="tips-header">
-      <text class="tips-icon">💡</text>
-      <text class="tips-title">拨打提示</text>
+  <!-- 长按操作菜单 -->
+  <view class="dialog-mask" wx:if="{{showActionSheet}}" bindtap="hideActionSheet">
+    <view class="action-sheet" catchtap="onDialogTap">
+      <view class="action-title">{{currentContact.name}}</view>
+      <view class="action-item" bindtap="editContact">✏️ 编辑此联系人</view>
+      <view class="action-item danger" bindtap="deleteContact">🗑️ 删除此联系人</view>
+      <view class="action-cancel" bindtap="hideActionSheet">取消</view>
     </view>
-    <view class="tips-content">点击上方按钮将直接拨打 {{phoneNumber}}，可在系统弹窗中确认后拨出。</view>
+  </view>
+
+  <!-- 添加/编辑弹窗 -->
+  <view class="dialog-mask" wx:if="{{showDialog}}" bindtap="hideAddDialog">
+    <view class="dialog-content" catchtap="onDialogTap">
+      <view class="dialog-title">{{dialogMode === 'edit' ? '编辑联系人' : '添加联系人'}}</view>
+
+      <!-- 头像选择 -->
+      <view class="avatar-picker" bindtap="onChooseAvatar">
+        <image
+          wx:if="{{newContact.avatarTempPath}}"
+          class="avatar-preview"
+          src="{{newContact.avatarTempPath}}"
+          mode="aspectFill"
+        />
+        <image
+          wx:elif="{{newContact.avatarFileId}}"
+          class="avatar-preview"
+          src="{{newContact.avatarFileId}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-placeholder">+</view>
+      </view>
+      <view class="avatar-tip">点击{{newContact.avatarTempPath || newContact.avatarFileId ? '更换' : '上传'}}头像（可选）</view>
+
+      <!-- 姓名 -->
+      <view class="form-item">
+        <view class="form-label">姓名</view>
+        <input
+          class="form-input"
+          placeholder="请输入姓名"
+          value="{{newContact.name}}"
+          data-field="name"
+          bindinput="onInputChange"
+        />
+      </view>
+
+      <!-- 电话 -->
+      <view class="form-item">
+        <view class="form-label">手机号</view>
+        <input
+          class="form-input"
+          type="number"
+          maxlength="11"
+          placeholder="请输入手机号"
+          value="{{newContact.phone}}"
+          data-field="phone"
+          bindinput="onInputChange"
+        />
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="dialog-actions">
+        <view class="dialog-btn cancel" bindtap="hideAddDialog">取消</view>
+        <view class="dialog-btn confirm" bindtap="confirmAdd">确认</view>
+      </view>
+    </view>
   </view>
 </view>

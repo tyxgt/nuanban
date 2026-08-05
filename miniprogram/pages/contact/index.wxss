@@ -1,137 +1,271 @@
 .contact-page {
   min-height: 100vh;
-  background: #FFFFFF;
+  background: #F5F7FA;
   padding: 24rpx 24rpx calc(100px + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
-/* 紧急联系主卡片 */
-.call-card {
-  margin-top: 16rpx;
-  background: linear-gradient(135deg, #E5524A 0%, #C0392B 100%);
-  border-radius: 28rpx;
-  padding: 32rpx;
-  display: flex;
-  align-items: center;
-  gap: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(229, 82, 74, 0.25);
-}
-
-.call-card-icon {
-  width: 96rpx;
-  height: 96rpx;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* 电话听筒图标 - CSS绘制 */
-.phone-handset {
-  width: 44rpx;
-  height: 20rpx;
-  border-radius: 10rpx;
-  background: #FFFFFF;
-  transform: rotate(-30deg);
-  position: relative;
-}
-
-.phone-handset::before,
-.phone-handset::after {
-  content: '';
-  position: absolute;
-  width: 18rpx;
-  height: 18rpx;
-  border-radius: 50%;
-  background: #FFFFFF;
-  top: 1rpx;
-}
-
-.phone-handset::before { left: -8rpx; }
-.phone-handset::after { right: -8rpx; }
-
-.call-card-info {
-  flex: 1;
+/* 空状态 */
+.empty-state {
   display: flex;
   flex-direction: column;
-  gap: 6rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 160rpx 0 80rpx;
+}
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.6;
+}
+.empty-text {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 12rpx;
+}
+.empty-hint {
+  font-size: 38rpx;
+  color: #999999;
 }
 
-.call-card-label {
-  font-size: 40rpx;
-  color: rgba(255, 255, 255, 0.9);
+/* 联系人列表（一行两个网格） */
+.contact-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-bottom: 32rpx;
+}
+.contact-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  transition: transform 0.1s;
+}
+.contact-item:active {
+  transform: scale(0.97);
 }
 
-.call-card-number {
-  font-size: 60rpx;
-  font-weight: 700;
+/* 头像（放大） */
+.avatar-wrap {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-bottom: 20rpx;
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+}
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3A7BD5 0%, #6DD5FA 100%);
   color: #FFFFFF;
-  letter-spacing: 2rpx;
-}
-
-.call-card-hint {
-  font-size: 36rpx;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-/* 大拨号按钮 */
-.call-btn {
-  margin-top: 40rpx;
-  height: 120rpx;
-  border-radius: 28rpx;
-  background: linear-gradient(135deg, #E5524A 0%, #C0392B 100%);
+  font-size: 72rpx;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(229, 82, 74, 0.3);
 }
 
-.call-btn:active {
-  opacity: 0.85;
-}
-
-.call-btn-icon {
-  font-size: 48rpx;
-  color: #FFFFFF;
-}
-
-.call-btn-text {
-  font-size: 48rpx;
+/* 姓名（突出显示） */
+.contact-name {
+  font-size: 58rpx;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #1A1A1A;
+  margin-bottom: 8rpx;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* 拨打提示卡片 */
-.tips-card {
-  margin-top: 32rpx;
-  background: #FFF8E1;
-  border: 1rpx solid #FAF0CC;
-  border-radius: 24rpx;
-  padding: 28rpx 32rpx;
+/* 电话 */
+.contact-phone {
+  font-size: 46rpx;
+  color: #0e0e0e;
+  text-align: center;
+  font-weight: bolder;
 }
 
-.tips-header {
+/* 添加联系人按钮 */
+.add-contact-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12rpx;
-  margin-bottom: 12rpx;
+  background: #FFFFFF;
+  border: 3rpx dashed #E5524A;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  font-size: 46rpx;
+  font-weight: 600;
+  color: #E5524A;
+}
+.add-contact-btn:active {
+  background: #FFF5F5;
+}
+.add-icon {
+  font-size: 60rpx;
+  line-height: 1;
 }
 
-.tips-icon {
-  font-size: 40rpx;
+/* 通用弹窗遮罩 */
+.dialog-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.tips-title {
+/* 操作菜单（长按） */
+.action-sheet {
+  width: 80%;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+.action-title {
+  padding: 32rpx;
   font-size: 42rpx;
-  font-weight: 700;
-  color: #8A6D1F;
+  font-weight: 600;
+  color: #1A1A1A;
+  text-align: center;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+.action-item {
+  padding: 32rpx;
+  font-size: 44rpx;
+  text-align: center;
+  color: #333333;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+.action-item:active {
+  background: #F5F5F5;
+}
+.action-item.danger {
+  color: #E5524A;
+}
+.action-cancel {
+  padding: 32rpx;
+  font-size: 44rpx;
+  text-align: center;
+  color: #666666;
+}
+.action-cancel:active {
+  background: #F5F5F5;
 }
 
-.tips-content {
-  font-size: 38rpx;
-  color: #8A6D1F;
-  line-height: 1.6;
+/* 添加/编辑弹窗 */
+.dialog-content {
+  width: 85%;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 36rpx 32rpx;
+  border: 1rpx solid #F0F0F0;
+}
+.dialog-title {
+  font-size: 52rpx;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 28rpx;
+  color: #1A1A1A;
+}
+
+/* 头像选择 */
+.avatar-picker {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  border: 3rpx dashed #3A7BD5;
+  margin: 0 auto 12rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F7F9FC;
+}
+.avatar-picker:active {
+  opacity: 0.8;
+}
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+}
+.avatar-placeholder {
+  font-size: 72rpx;
+  color: #3A7BD5;
+  line-height: 1;
+}
+.avatar-tip {
+  text-align: center;
+  font-size: 34rpx;
+  color: #999999;
+  margin-bottom: 28rpx;
+}
+
+/* 表单项 */
+.form-item {
+  margin-bottom: 20rpx;
+}
+.form-label {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 10rpx;
+}
+.form-input {
+  width: 100%;
+  height: 96rpx;
+  background: #F7F9FC;
+  border: 1rpx solid #E0E8F0;
+  border-radius: 16rpx;
+  padding: 0 20rpx;
+  font-size: 42rpx;
+  box-sizing: border-box;
+}
+
+/* 操作按钮 */
+.dialog-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+.dialog-btn {
+  flex: 1;
+  height: 96rpx;
+  border-radius: 20rpx;
+  font-size: 46rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dialog-btn.cancel {
+  background: #F0F0F0;
+  color: #666666;
+}
+.dialog-btn.confirm {
+  background: #E5524A;
+  color: #FFFFFF;
+}
+.dialog-btn.cancel:active {
+  background: #E5E5E5;
+}
+.dialog-btn.confirm:active {
+  background: #C0392B;
 }
