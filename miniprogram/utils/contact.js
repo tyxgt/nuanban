@@ -56,9 +56,24 @@ function deleteContact(id) {
   })
 }
 
+/**
+ * 切换置顶状态
+ */
+function togglePin(id) {
+  return new Promise((resolve) => {
+    wx.cloud.callFunction({
+      name: 'saveContact',
+      data: { action: 'togglePin', id },
+      success: (res) => resolve(res.result || { code: -1, msg: '调用失败' }),
+      fail: (err) => resolve({ code: -1, msg: err.message })
+    })
+  })
+}
+
 module.exports = {
   getContacts,
   addContact,
   updateContact,
-  deleteContact
+  deleteContact,
+  togglePin
 }

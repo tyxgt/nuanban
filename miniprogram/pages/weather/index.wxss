@@ -338,11 +338,3 @@
   line-height: 1.55;
   padding-left: 52rpx;
 }
-
-/* === 加载提示 === */
-.loading-tip {
-  text-align: center;
-  font-size: 51rpx;
-  color: #999999;
-  padding: 40rpx;
-}

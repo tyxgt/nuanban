@@ -38,7 +38,7 @@
       <view class="section-date">{{dateShort}}</view>
     </view>
 
-    <view class="med-list" wx:if="{{medications.length > 0 && !loading}}">
+    <view class="med-list" wx:if="{{medications.length > 0}}">
       <view
         wx:for="{{medications}}"
         wx:key="_id"
@@ -79,9 +79,7 @@
     </view>
 
     <!-- 加载状态 -->
-    <view class="loading-state" wx:if="{{loading}}">
-      <view class="loading-text">正在加载用药计划...</view>
-    </view>
+    <loading-spinner wx:if="{{loading && medications.length === 0}}" text="正在加载用药计划..." />
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{medications.length === 0 && !loading}}">

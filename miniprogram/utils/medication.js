@@ -70,35 +70,10 @@ function deleteMedication(id) {
   })
 }
 
-/**
- * 请求订阅消息授权
- */
-function requestSubscribe(templateId) {
-  return new Promise((resolve) => {
-    wx.requestSubscribeMessage({
-      tmplIds: [templateId],
-      success: (res) => {
-        if (res[templateId] === 'accept') {
-          // 订阅成功，通知云函数增加配额
-          wx.cloud.callFunction({
-            name: 'saveMedication',
-            data: { action: 'addSubscribe' },
-            complete: () => resolve(true)
-          })
-        } else {
-          resolve(false)
-        }
-      },
-      fail: () => resolve(false)
-    })
-  })
-}
-
 module.exports = {
   getMedications,
   addMedication,
   updateMedStatus,
   updateMedication,
-  deleteMedication,
-  requestSubscribe
+  deleteMedication
 }

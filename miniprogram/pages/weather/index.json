@@ -1,4 +1,6 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "loading-spinner": "/components/loading-spinner/index"
+  },
   "navigationBarTitleText": "暖阳叮嘱"
 }

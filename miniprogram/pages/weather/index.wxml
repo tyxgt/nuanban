@@ -83,6 +83,6 @@
 
 
     <!-- 加载提示 -->
-    <view class="loading-tip" wx:if="{{loading}}">正在获取天气...</view>
+    <loading-spinner wx:if="{{loading && !weather.temp}}" text="正在获取天气..." />
   </view>
 </view>

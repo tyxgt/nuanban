@@ -1,5 +1,5 @@
 // pages/contact/index.js
-const { getContacts, addContact, updateContact, deleteContact } = require('../../utils/contact.js')
+const { getContacts, addContact, updateContact, deleteContact, togglePin } = require('../../utils/contact.js')
 
 // 中国大陆手机号校验
 const PHONE_REG = /^1[3-9]\d{9}$/
@@ -83,6 +83,25 @@ Page({
 
   hideActionSheet() {
     this.setData({ showActionSheet: false })
+  },
+
+  async togglePinContact() {
+    const { currentContact } = this.data
+    if (!currentContact || !currentContact._id) return
+
+    try {
+      const result = await togglePin(currentContact._id)
+      if (result.code === 0) {
+        wx.showToast({ title: result.data.isPinned ? '已置顶' : '已取消置顶', icon: 'success' })
+        this.setData({ showActionSheet: false })
+        this.loadContacts()
+      } else {
+        wx.showToast({ title: result.msg || '操作失败', icon: 'none' })
+      }
+    } catch (err) {
+      console.error('切换置顶失败:', err)
+      wx.showToast({ title: '操作失败', icon: 'none' })
+    }
   },
 
   editContact() {

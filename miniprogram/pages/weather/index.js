@@ -48,14 +48,18 @@ function formatTodayInfo() {
 }
 
 function buildTipText(advice, sportText, carWashText) {
-  const tips = []
-  if (advice) tips.push(advice)
-  if (sportText) tips.push(sportText)
-  if (carWashText) tips.push(carWashText)
-  if (tips.length === 0) {
+  const parts = []
+  if (advice) parts.push(advice.trim())
+
+  const indices = []
+  if (sportText) indices.push(`运动${sportText}`)
+  if (carWashText) indices.push(`洗车${carWashText}`)
+  if (indices.length > 0) parts.push(indices.join('，') + '。')
+
+  if (parts.length === 0) {
     return '天气舒适，适合外出活动，注意补充水分。'
   }
-  return tips.join('，') + '。'
+  return parts.join('')
 }
 
 Page({

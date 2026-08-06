@@ -1,6 +1,9 @@
 <view class="contact-page">
+  <!-- 加载状态 -->
+  <loading-spinner wx:if="{{loading && contacts.length === 0}}" text="正在加载联系人..." />
+
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{contacts.length === 0 && !loading}}">
+  <view class="empty-state" wx:elif="{{contacts.length === 0}}">
     <view class="empty-icon">📞</view>
     <view class="empty-text">还没有联系人</view>
     <view class="empty-hint">点击下方按钮添加联系人</view>
@@ -16,6 +19,9 @@
       bindtap="onContactTap"
       bindlongpress="onContactLongPress"
     >
+      <!-- 置顶角标 -->
+      <view class="pin-badge" wx:if="{{item.isPinned}}">📌 置顶</view>
+
       <!-- 头像 -->
       <view class="avatar-wrap">
         <image
@@ -45,6 +51,7 @@
   <view class="dialog-mask" wx:if="{{showActionSheet}}" bindtap="hideActionSheet">
     <view class="action-sheet" catchtap="onDialogTap">
       <view class="action-title">{{currentContact.name}}</view>
+      <view class="action-item" bindtap="togglePinContact">📌 {{currentContact.isPinned ? '取消置顶' : '置顶此联系人'}}</view>
       <view class="action-item" bindtap="editContact">✏️ 编辑此联系人</view>
       <view class="action-item danger" bindtap="deleteContact">🗑️ 删除此联系人</view>
       <view class="action-cancel" bindtap="hideActionSheet">取消</view>

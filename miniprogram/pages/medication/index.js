@@ -1,8 +1,5 @@
 // pages/medication/index.js
-const { getMedications, addMedication, updateMedStatus, updateMedication, deleteMedication, requestSubscribe } = require('../../utils/medication.js')
-
-// 订阅消息模板ID
-const TEMPLATE_ID = '70Qu5rZyfa13-GFoqUXvP5rzraVPp6C8u1P-coGFIa4'
+const { getMedications, addMedication, updateMedStatus, updateMedication, deleteMedication } = require('../../utils/medication.js')
 
 // 时段配置
 const PERIOD_OPTIONS = ['早餐前', '早餐后', '午餐前', '午餐后', '晚餐前', '晚餐后', '睡前']
@@ -475,15 +472,12 @@ Page({
           wx.showToast({ title: result.msg || '修改失败，请重试', icon: 'none' })
         }
       } else {
-        const subscribed = await requestSubscribe(TEMPLATE_ID)
-
         const result = await addMedication({
           name: name.trim(),
           dosage: dosage.trim() || '按医嘱服用',
           time,
           periodLabel: periodLabel.trim() || '按时服药',
-          status: 'pending',
-          subscribeCount: subscribed ? 1 : 0
+          status: 'pending'
         })
 
         if (result.code === 0) {

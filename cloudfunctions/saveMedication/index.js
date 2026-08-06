@@ -20,14 +20,25 @@ exports.main = async (event, context) => {
         return await editMedication(event.id, event.medication, openid)
       case 'delete':
         return await deleteMedication(event.id, openid)
-      case 'addSubscribe':
-        return await addSubscribeCount(openid)
       default:
         return { code: -1, msg: '未知操作: ' + action, data: null }
     }
   } catch (err) {
     console.error('saveMedication错误:', err)
     return { code: -1, msg: err.message, data: null }
+  }
+}
+
+// 文本内容安全检测，命中违规返回 true；接口调用异常（非违规判定）放行返回 false
+async function isTextRisky(content, openid) {
+  if (!content) return false
+  try {
+    await cloud.openapi.security.msgSecCheck({ content, version: 2, scene: 1, openid })
+    return false
+  } catch (err) {
+    if (err.errCode === 87014 || err.errcode === 87014) return true
+    console.warn('文本安全检测调用异常，放行:', err)
+    return false
   }
 }
 
@@ -43,6 +54,13 @@ async function listMedications(openid) {
 
 // 添加用药记录
 async function addMedication(medication, openid) {
+  if (await isTextRisky(medication.name, openid)) {
+    return { code: -2, msg: '药品名称包含违规内容，请修改后重试', data: null }
+  }
+  if (await isTextRisky(medication.dosage, openid)) {
+    return { code: -2, msg: '剂量说明包含违规内容，请修改后重试', data: null }
+  }
+
   const now = new Date()
   const result = await db.collection('medications').add({
     data: {
@@ -53,8 +71,7 @@ async function addMedication(medication, openid) {
       periodLabel: medication.periodLabel,
       status: medication.status || 'pending',
       takenAt: null,
-      createdAt: now,
-      subscribeCount: medication.subscribeCount || 0
+      createdAt: now
     }
   })
 
@@ -88,6 +105,13 @@ async function editMedication(id, medication, openid) {
     return { code: -1, msg: '无权修改该记录', data: null }
   }
 
+  if (await isTextRisky(medication.name, openid)) {
+    return { code: -2, msg: '药品名称包含违规内容，请修改后重试', data: null }
+  }
+  if (await isTextRisky(medication.dosage, openid)) {
+    return { code: -2, msg: '剂量说明包含违规内容，请修改后重试', data: null }
+  }
+
   await db.collection('medications').doc(id).update({
     data: {
       name: medication.name,
@@ -113,13 +137,5 @@ async function deleteMedication(id, openid) {
     return { code: -1, msg: '无权删除该记录', data: null }
   }
   await db.collection('medications').doc(id).remove()
-  return { code: 0, msg: 'success', data: null }
-}
-
-// 增加订阅配额
-// 注意:微信一次性订阅"1次授权=1条消息",配额由前端在添加药物时
-// 直接写入对应记录(subscribeCount),此处不再批量给所有 pending 记录 +1,
-// 避免给未授权的记录产生虚假配额导致发送时被微信拒绝。
-async function addSubscribeCount(openid) {
   return { code: 0, msg: 'success', data: null }
 }

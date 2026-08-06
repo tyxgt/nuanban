@@ -1,12 +1,5 @@
 {
   "permissions": {
     "openapi": ["subscribeMessage.send"]
-  },
-  "triggers": [
-    {
-      "name": "every5Minutes",
-      "type": "timer",
-      "config": "0 */5 * * * * *"
-    }
-  ]
+  }
 }

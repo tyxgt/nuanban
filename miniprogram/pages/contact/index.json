@@ -1,4 +1,7 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "打电话"
+  "usingComponents": {
+    "loading-spinner": "/components/loading-spinner/index"
+  },
+  "navigationBarTitleText": "打电话",
+  "enablePullDownRefresh": true
 }

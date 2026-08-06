@@ -321,20 +321,6 @@
   border: 1rpx solid #F0F0F0;
 }
 
-/* 加载状态 */
-.loading-state {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 60rpx 40rpx;
-  text-align: center;
-  border: 1rpx solid #F0F0F0;
-}
-
-.loading-text {
-  font-size: 42rpx;
-  color: #999999;
-}
-
 .empty-icon {
   font-size: 120rpx;
   margin-bottom: 16rpx;

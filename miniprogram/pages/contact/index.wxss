@@ -37,6 +37,7 @@
   margin-bottom: 32rpx;
 }
 .contact-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,6 +49,21 @@
 }
 .contact-item:active {
   transform: scale(0.97);
+}
+
+/* 置顶角标 */
+.pin-badge {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  background: #3A7BD5;
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 4rpx 14rpx;
+  border-radius: 20rpx;
+  line-height: 1.6;
+  z-index: 1;
 }
 
 /* 头像（放大） */
