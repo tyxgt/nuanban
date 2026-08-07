@@ -4,6 +4,9 @@ const { getMedications, addMedication, updateMedStatus, updateMedication, delete
 // 时段配置
 const PERIOD_OPTIONS = ['早餐前', '早餐后', '午餐前', '午餐后', '晚餐前', '晚餐后', '睡前']
 
+// 用量单位配置
+const DOSAGE_UNIT_OPTIONS = ['片', '粒', '袋', '支', '毫升', '毫克', '滴', '其他']
+
 // 根据时间段获取图标
 function getPeriodIcon(periodLabel) {
   if (!periodLabel) return '💊'
@@ -111,11 +114,16 @@ Page({
     loading: false,
     periodOptions: PERIOD_OPTIONS,
     periodIndex: 0,
+    dosageUnitOptions: DOSAGE_UNIT_OPTIONS,
+    dosageUnitIndex: 0,
     newMed: {
       name: '',
       dosage: '',
+      dosageUnit: '片',
       time: '08:00',
-      periodLabel: '早餐后'
+      periodLabel: '早餐后',
+      imageFileId: '',    // 已上传的云存储 fileID（编辑模式初始值）
+      imageTempPath: ''   // 新选择的本地临时路径（预览用）
     },
     submitting: false,
     allTaken: false
@@ -176,13 +184,13 @@ Page({
       } else {
         this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
         if (result.code !== 0) {
-          wx.showToast({ title: result.msg || '获取用药列表失败', icon: 'none' })
+          wx.showToast({ title: result.msg || '获取吃药列表失败', icon: 'none' })
         }
       }
     } catch (err) {
-      console.error('获取用药列表失败:', err)
+      console.error('获取吃药列表失败:', err)
       this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
-      wx.showToast({ title: '获取用药列表失败', icon: 'none' })
+      wx.showToast({ title: '获取吃药列表失败', icon: 'none' })
     } finally {
       this.setData({ loading: false })
     }
@@ -344,17 +352,22 @@ Page({
   editMed() {
     const { currentMed } = this.data
     const periodIndex = PERIOD_OPTIONS.findIndex(p => p === currentMed.periodLabel)
+    const dosageUnitIndex = DOSAGE_UNIT_OPTIONS.findIndex(u => u === currentMed.dosageUnit)
     this.setData({
       showActionSheet: false,
       showDialog: true,
       dialogMode: 'edit',
       editingId: currentMed._id,
       periodIndex: periodIndex >= 0 ? periodIndex : 0,
+      dosageUnitIndex: dosageUnitIndex >= 0 ? dosageUnitIndex : 0,
       newMed: {
         name: currentMed.name,
         dosage: currentMed.dosage,
+        dosageUnit: currentMed.dosageUnit || '片',
         time: currentMed.time,
-        periodLabel: currentMed.periodLabel
+        periodLabel: currentMed.periodLabel,
+        imageFileId: currentMed.imageFileId || '',
+        imageTempPath: ''
       }
     })
   },
@@ -388,11 +401,15 @@ Page({
       dialogMode: 'add',
       editingId: '',
       periodIndex: periodIndex >= 0 ? periodIndex : 0,
+      dosageUnitIndex: 0,
       newMed: {
         name: '',
         dosage: '',
+        dosageUnit: DOSAGE_UNIT_OPTIONS[0],
         time: `${String(hour).padStart(2, '0')}:00`,
-        periodLabel: PERIOD_OPTIONS[periodIndex >= 0 ? periodIndex : 0]
+        periodLabel: PERIOD_OPTIONS[periodIndex >= 0 ? periodIndex : 0],
+        imageFileId: '',
+        imageTempPath: ''
       }
     })
   },
@@ -406,6 +423,31 @@ Page({
   onInputChange(e) {
     const { field } = e.currentTarget.dataset
     this.setData({ [`newMed.${field}`]: e.detail.value })
+  },
+
+  // 选择药品图片
+  onChooseImage() {
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: (res) => {
+        const tempFilePath = res.tempFiles[0].tempFilePath
+        this.setData({ 'newMed.imageTempPath': tempFilePath })
+      },
+      fail: () => {
+        // 用户取消，不提示
+      }
+    })
+  },
+
+  // 移除已选药品图片
+  onRemoveImage() {
+    this.setData({
+      'newMed.imageTempPath': '',
+      'newMed.imageFileId': ''
+    })
   },
 
   onTimeChange(e) {
@@ -431,10 +473,18 @@ Page({
     })
   },
 
+  onDosageUnitChange(e) {
+    const index = e.detail.value
+    this.setData({
+      dosageUnitIndex: index,
+      'newMed.dosageUnit': DOSAGE_UNIT_OPTIONS[index]
+    })
+  },
+
   async confirmAdd() {
     if (this.data.submitting) return
 
-    const { name, dosage, time, periodLabel } = this.data.newMed
+    const { name, dosage, dosageUnit, time, periodLabel, imageFileId, imageTempPath } = this.data.newMed
     const { dialogMode, editingId } = this.data
 
     if (!name || !name.trim()) {
@@ -456,13 +506,38 @@ Page({
     }
 
     this.setData({ submitting: true })
+    wx.showLoading({ title: '保存中...', mask: true })
+
     try {
+      let finalImageFileId = imageFileId || ''
+
+      // 用量为空时用默认文案兜底，此时不附带单位，避免出现"按医嘱服用片"
+      const dosageTrimmed = dosage.trim()
+      const finalDosage = dosageTrimmed || '按医嘱服用'
+      const finalDosageUnit = dosageTrimmed ? (dosageUnit || '') : ''
+
+      // 若新选了图片，先上传云存储
+      if (imageTempPath) {
+        const cloudPath = `medications/${Date.now()}_${Math.floor(Math.random() * 1000)}.png`
+        const uploadRes = await new Promise((resolve, reject) => {
+          wx.cloud.uploadFile({
+            cloudPath,
+            filePath: imageTempPath,
+            success: resolve,
+            fail: reject
+          })
+        })
+        finalImageFileId = uploadRes.fileID
+      }
+
       if (dialogMode === 'edit') {
         const result = await updateMedication(editingId, {
           name: name.trim(),
-          dosage: dosage.trim() || '按医嘱服用',
+          dosage: finalDosage,
+          dosageUnit: finalDosageUnit,
           time,
-          periodLabel: periodLabel.trim() || '按时服药'
+          periodLabel: periodLabel.trim() || '按时服药',
+          imageFileId: finalImageFileId
         })
         if (result.code === 0) {
           wx.showToast({ title: '修改成功', icon: 'success' })
@@ -474,10 +549,12 @@ Page({
       } else {
         const result = await addMedication({
           name: name.trim(),
-          dosage: dosage.trim() || '按医嘱服用',
+          dosage: finalDosage,
+          dosageUnit: finalDosageUnit,
           time,
           periodLabel: periodLabel.trim() || '按时服药',
-          status: 'pending'
+          status: 'pending',
+          imageFileId: finalImageFileId
         })
 
         if (result.code === 0) {
@@ -493,6 +570,7 @@ Page({
       wx.showToast({ title: dialogMode === 'edit' ? '修改失败' : '添加失败', icon: 'none' })
     } finally {
       this.setData({ submitting: false })
+      wx.hideLoading()
     }
   }
 })

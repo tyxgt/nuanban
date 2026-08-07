@@ -68,9 +68,9 @@
 
 /* 头像（放大） */
 .avatar-wrap {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 50%;
+  width: 300rpx;
+  height: 300rpx;
+  /* border-radius: 50%; */
   overflow: hidden;
   flex-shrink: 0;
   margin-bottom: 20rpx;
@@ -84,7 +84,7 @@
   height: 100%;
   background: linear-gradient(135deg, #3A7BD5 0%, #6DD5FA 100%);
   color: #FFFFFF;
-  font-size: 72rpx;
+  font-size: 90rpx;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -189,10 +189,13 @@
 /* 添加/编辑弹窗 */
 .dialog-content {
   width: 85%;
+  max-height: 82vh;
   background: #FFFFFF;
   border-radius: 28rpx;
   padding: 36rpx 32rpx;
   border: 1rpx solid #F0F0F0;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 .dialog-title {
   font-size: 52rpx;
@@ -204,8 +207,8 @@
 
 /* 头像选择 */
 .avatar-picker {
-  width: 160rpx;
-  height: 160rpx;
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 50%;
   border: 3rpx dashed #3A7BD5;
   margin: 0 auto 12rpx;
@@ -223,7 +226,7 @@
   height: 100%;
 }
 .avatar-placeholder {
-  font-size: 72rpx;
+  font-size: 90rpx;
   color: #3A7BD5;
   line-height: 1;
 }

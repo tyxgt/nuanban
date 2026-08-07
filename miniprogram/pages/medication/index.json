@@ -2,6 +2,6 @@
   "usingComponents": {
     "loading-spinner": "/components/loading-spinner/index"
   },
-  "navigationBarTitleText": "用药提醒",
+  "navigationBarTitleText": "吃药提醒",
   "enablePullDownRefresh": true
 }

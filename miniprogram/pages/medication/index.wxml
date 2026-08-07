@@ -1,7 +1,7 @@
 <view class="medication-page">
   <!-- 顶部标题栏 -->
   <!-- <view class="med-header">
-    <view class="med-title">用药提醒</view>
+    <view class="med-title">吃药提醒</view>
     <view class="med-date">{{dateStr}}</view>
   </view> -->
 
@@ -26,15 +26,15 @@
     <view class="next-med-info">
       <view class="next-med-label">下一次服药时间</view>
       <view class="next-med-time">{{allTaken ? '已完成' : '--:--'}}</view>
-      <view class="next-med-countdown">{{allTaken ? '今日所有用药已完成' : '还没有添加用药计划'}}</view>
+      <view class="next-med-countdown">{{allTaken ? '今天的药吃完了' : '还没有添加吃药计划'}}</view>
     </view>
     <view class="next-med-arrow"></view>
   </view>
 
-  <!-- 今日用药计划 -->
+  <!-- 今日吃药计划 -->
   <view class="med-section">
     <view class="section-header">
-      <view class="section-title">今日用药计划</view>
+      <view class="section-title">今日吃药计划</view>
       <view class="section-date">{{dateShort}}</view>
     </view>
 
@@ -60,6 +60,12 @@
           <text class="period-emoji">{{item.periodIcon}}</text>
         </view> -->
 
+        <!-- 药品图片：无论是否上传过图片都占位，保持列表文字对齐一致 -->
+        <view class="med-img-wrap">
+          <image wx:if="{{item.imageFileId}}" class="med-img" src="{{item.imageFileId}}" mode="aspectFill" />
+          <text wx:else class="med-img-placeholder">💊</text>
+        </view>
+
         <!-- 药品信息 -->
         <view class="med-info">
           <view class="med-top">
@@ -71,7 +77,7 @@
           </view>
           <view class="med-detail">
             <text class="med-name">{{item.name}}</text>
-            <text class="med-dose">{{item.dosage}}</text>
+            <text class="med-dose">{{item.dosage}}{{item.dosageUnit}}</text>
             <view class="med-arrow"></view>
           </view>
         </view>
@@ -79,12 +85,12 @@
     </view>
 
     <!-- 加载状态 -->
-    <loading-spinner wx:if="{{loading && medications.length === 0}}" text="正在加载用药计划..." />
+    <loading-spinner wx:if="{{loading && medications.length === 0}}" text="正在加载吃药计划..." />
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{medications.length === 0 && !loading}}">
       <view class="empty-icon">💊</view>
-      <view class="empty-text">还没有用药计划</view>
+      <view class="empty-text">还没有吃药计划</view>
       <view class="empty-hint">点击下方按钮添加药物</view>
     </view>
   </view>
@@ -94,11 +100,11 @@
     <view class="add-icon">+</view>
     <text>添加药物</text>
   </view>
-   <!-- 用药小贴士 -->
+   <!-- 吃药小贴士 -->
   <view class="tips-card">
     <view class="tips-header">
       <text class="tips-icon">💡</text>
-      <text class="tips-title">用药小贴士</text>
+      <text class="tips-title">吃药小贴士</text>
     </view>
     <view class="tips-content">请按时按量服药，如有不适，请咨询医生。</view>
   </view>
@@ -108,28 +114,59 @@
 <view class="dialog-mask" wx:if="{{showDialog}}" bindtap="hideAddDialog">
   <view class="dialog-content" catchtap="onDialogTap">
     <view class="dialog-title">{{dialogMode === 'edit' ? '编辑药物' : '添加药物'}}</view>
-    <view class="dialog-form">
-      <view class="form-item">
-        <view class="form-label">药品名称</view>
-        <input class="form-input" placeholder="如：降压药" value="{{newMed.name}}" data-field="name" bindinput="onInputChange" />
+
+    <scroll-view scroll-y class="dialog-scroll">
+      <!-- 药品图片选择 -->
+      <view class="med-image-picker" bindtap="onChooseImage">
+        <image
+          wx:if="{{newMed.imageTempPath}}"
+          class="med-image-preview"
+          src="{{newMed.imageTempPath}}"
+          mode="aspectFill"
+        />
+        <image
+          wx:elif="{{newMed.imageFileId}}"
+          class="med-image-preview"
+          src="{{newMed.imageFileId}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="med-image-placeholder">+</view>
+        <view
+          class="med-image-remove"
+          wx:if="{{newMed.imageTempPath || newMed.imageFileId}}"
+          catchtap="onRemoveImage"
+        >×</view>
       </view>
-      <view class="form-item">
-        <view class="form-label">剂量说明</view>
-        <input class="form-input" placeholder="如：1片" value="{{newMed.dosage}}" data-field="dosage" bindinput="onInputChange" />
+      <view class="med-image-tip">点击{{newMed.imageTempPath || newMed.imageFileId ? '更换' : '上传'}}药品图片（可选）</view>
+
+      <view class="dialog-form">
+        <view class="form-item">
+          <view class="form-label">药品名称</view>
+          <input class="form-input" placeholder="如：降压药" value="{{newMed.name}}" data-field="name" bindinput="onInputChange" />
+        </view>
+        <view class="form-item">
+          <view class="form-label">用量</view>
+          <view class="dosage-row">
+            <input class="form-input dosage-input" placeholder="如：1" value="{{newMed.dosage}}" data-field="dosage" bindinput="onInputChange" />
+            <picker class="dosage-unit-picker" range="{{dosageUnitOptions}}" value="{{dosageUnitIndex}}" bindchange="onDosageUnitChange">
+              <view class="form-input picker-text dosage-unit-text">{{newMed.dosageUnit || '单位'}}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="form-item">
+          <view class="form-label">服药时间</view>
+          <picker mode="time" value="{{newMed.time}}" bindchange="onTimeChange">
+            <view class="form-input picker-text">{{newMed.time || '请选择时间'}}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <view class="form-label">时段</view>
+          <picker range="{{periodOptions}}" value="{{periodIndex}}" bindchange="onPeriodChange">
+            <view class="form-input picker-text">{{newMed.periodLabel || '请选择时段'}}</view>
+          </picker>
+        </view>
       </view>
-      <view class="form-item">
-        <view class="form-label">服药时间</view>
-        <picker mode="time" value="{{newMed.time}}" bindchange="onTimeChange">
-          <view class="form-input picker-text">{{newMed.time || '请选择时间'}}</view>
-        </picker>
-      </view>
-      <view class="form-item">
-        <view class="form-label">时段</view>
-        <picker range="{{periodOptions}}" value="{{periodIndex}}" bindchange="onPeriodChange">
-          <view class="form-input picker-text">{{newMed.periodLabel || '请选择时段'}}</view>
-        </picker>
-      </view>
-    </view>
+    </scroll-view>
     <view class="dialog-actions">
       <view class="dialog-btn cancel" bindtap="hideAddDialog">取消</view>
       <view class="dialog-btn confirm" bindtap="confirmAdd">{{dialogMode === 'edit' ? '保存修改' : '确定添加'}}</view>

@@ -75,10 +75,15 @@ async function listContacts(openid) {
 
 // 添加联系人
 async function addContact(contact, openid) {
-  if (await isTextRisky(contact.name, openid)) {
+  // 两项安全检测并行发起，减少总耗时，避免云函数超时
+  const [nameRisky, avatarRisky] = await Promise.all([
+    isTextRisky(contact.name, openid),
+    isImageRisky(contact.avatarFileId)
+  ])
+  if (nameRisky) {
     return { code: -2, msg: '姓名包含违规内容，请修改后重试', data: null }
   }
-  if (await isImageRisky(contact.avatarFileId)) {
+  if (avatarRisky) {
     return { code: -2, msg: '头像图片不合规，请更换后重试', data: null }
   }
 
@@ -111,10 +116,14 @@ async function editContact(id, contact, openid) {
     return { code: -1, msg: '无权修改该记录', data: null }
   }
 
-  if (await isTextRisky(contact.name, openid)) {
+  const [nameRisky, avatarRisky] = await Promise.all([
+    isTextRisky(contact.name, openid),
+    isImageRisky(contact.avatarFileId)
+  ])
+  if (nameRisky) {
     return { code: -2, msg: '姓名包含违规内容，请修改后重试', data: null }
   }
-  if (await isImageRisky(contact.avatarFileId)) {
+  if (avatarRisky) {
     return { code: -2, msg: '头像图片不合规，请更换后重试', data: null }
   }
 

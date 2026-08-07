@@ -125,7 +125,7 @@
   flex-shrink: 0;
 }
 
-/* 用药计划区域 */
+/* 吃药计划区域 */
 .med-section {
   padding: 0 24rpx;
 }
@@ -162,7 +162,7 @@
   border-radius: 24rpx;
   padding: 24rpx 28rpx;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 20rpx;
   border: 1rpx solid #F0F0F0;
   box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.03);
@@ -190,6 +190,29 @@
 
 .period-emoji {
   font-size: 60rpx;
+}
+
+/* 药品图片（列表缩略图，无图片时显示占位图标，保持列表文字对齐一致） */
+.med-img-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #F5F9FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.med-img {
+  width: 100%;
+  height: 100%;
+}
+
+.med-img-placeholder {
+  font-size: 56rpx;
+  line-height: 1;
 }
 
 .med-info {
@@ -247,7 +270,6 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 8rpx;
   background: #FFFFFF;
   transition: all 0.2s ease;
 }
@@ -281,7 +303,8 @@
 .med-item.is-taken .med-time-label {
   color: #BBBBBB;
 }
-.med-item.is-taken .med-period-icon {
+.med-item.is-taken .med-period-icon,
+.med-item.is-taken .med-img-wrap {
   background: #F0F0F0;
   opacity: 0.7;
 }
@@ -338,7 +361,7 @@
   color: #999999;
 }
 
-/* 用药小贴士（沿用温馨提示黄卡风格） */
+/* 吃药小贴士（沿用温馨提示黄卡风格） */
 .tips-card {
   margin: 24rpx;
   background: #FFF8E1;
@@ -395,7 +418,7 @@
 /* 弹窗 */
 .dialog-mask {
   position: fixed;
-  top: 0;
+  top: -200rpx;
   left: 0;
   right: 0;
   bottom: 0;
@@ -408,10 +431,14 @@
 
 .dialog-content {
   width: 85%;
+  max-height: 82vh;
   background: #FFFFFF;
   border-radius: 28rpx;
   padding: 36rpx 32rpx;
   border: 1rpx solid #F0F0F0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .dialog-title {
@@ -419,6 +446,65 @@
   font-weight: 800;
   color: #1A1A1A;
   text-align: center;
+  margin-bottom: 28rpx;
+  flex-shrink: 0;
+}
+
+/* 弹窗中间内容区域：可滚动，把"取消/确定"按钮始终留在可视区域内 */
+.dialog-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* 药品图片选择（表单） */
+.med-image-picker {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 24rpx;
+  border: 3rpx dashed #3A7BD5;
+  margin: 0 auto 12rpx;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F7F9FC;
+}
+
+.med-image-picker:active {
+  opacity: 0.8;
+}
+
+.med-image-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.med-image-placeholder {
+  font-size: 90rpx;
+  color: #3A7BD5;
+  line-height: 1;
+}
+
+.med-image-remove {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFFFFF;
+  font-size: 32rpx;
+  line-height: 44rpx;
+  text-align: center;
+}
+
+.med-image-tip {
+  text-align: center;
+  font-size: 34rpx;
+  color: #999999;
   margin-bottom: 28rpx;
 }
 
@@ -445,6 +531,26 @@
   box-sizing: border-box;
 }
 
+/* 用量：数量输入框 + 单位选择器 */
+.dosage-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.dosage-input {
+  flex: 1;
+}
+
+.dosage-unit-picker {
+  width: 176rpx;
+  flex-shrink: 0;
+}
+
+.dosage-unit-text {
+  text-align: center;
+}
+
 .picker-text {
   line-height: 100rpx;
   color: #666666;
@@ -454,6 +560,7 @@
   display: flex;
   gap: 16rpx;
   margin-top: 28rpx;
+  flex-shrink: 0;
 }
 
 .dialog-btn {

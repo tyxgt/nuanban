@@ -139,9 +139,10 @@ Page({
               carWashText: data.carWashText || ''
             }
 
-            const forecast = data.forecast.map((item, index) => ({
+            // 未来三天天气：过滤掉今天（下标0），保留原始下标传给 getDayName 以保证明天/后天判断正确
+            const forecast = data.forecast.slice(1).map((item, index) => ({
               date: item.date,
-              dayName: getDayName(item.date, index),
+              dayName: getDayName(item.date, index + 1),
               dateShort: getDateShort(item.date),
               emoji: getWeatherEmoji(item.textDay),
               textDay: item.textDay,

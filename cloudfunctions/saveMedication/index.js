@@ -42,6 +42,22 @@ async function isTextRisky(content, openid) {
   }
 }
 
+// 图片内容安全检测，命中违规返回 true；接口调用异常（非违规判定）放行返回 false
+async function isImageRisky(fileID) {
+  if (!fileID) return false
+  try {
+    const { fileContent } = await cloud.downloadFile({ fileID })
+    await cloud.openapi.security.imgSecCheck({
+      media: { contentType: 'image/png', value: fileContent }
+    })
+    return false
+  } catch (err) {
+    if (err.errCode === 87014 || err.errcode === 87014) return true
+    console.warn('图片安全检测调用异常，放行:', err)
+    return false
+  }
+}
+
 // 查询用药列表
 async function listMedications(openid) {
   const result = await db.collection('medications')
@@ -54,11 +70,20 @@ async function listMedications(openid) {
 
 // 添加用药记录
 async function addMedication(medication, openid) {
-  if (await isTextRisky(medication.name, openid)) {
+  // 三项安全检测并行发起，减少总耗时，避免云函数超时
+  const [nameRisky, dosageRisky, imageRisky] = await Promise.all([
+    isTextRisky(medication.name, openid),
+    isTextRisky(medication.dosage, openid),
+    isImageRisky(medication.imageFileId)
+  ])
+  if (nameRisky) {
     return { code: -2, msg: '药品名称包含违规内容，请修改后重试', data: null }
   }
-  if (await isTextRisky(medication.dosage, openid)) {
+  if (dosageRisky) {
     return { code: -2, msg: '剂量说明包含违规内容，请修改后重试', data: null }
+  }
+  if (imageRisky) {
+    return { code: -2, msg: '药品图片不合规，请更换后重试', data: null }
   }
 
   const now = new Date()
@@ -67,9 +92,11 @@ async function addMedication(medication, openid) {
       _openid: openid,
       name: medication.name,
       dosage: medication.dosage,
+      dosageUnit: medication.dosageUnit || '',
       time: medication.time,
       periodLabel: medication.periodLabel,
       status: medication.status || 'pending',
+      imageFileId: medication.imageFileId || '',
       takenAt: null,
       createdAt: now
     }
@@ -105,19 +132,40 @@ async function editMedication(id, medication, openid) {
     return { code: -1, msg: '无权修改该记录', data: null }
   }
 
-  if (await isTextRisky(medication.name, openid)) {
+  const [nameRisky, dosageRisky, imageRisky] = await Promise.all([
+    isTextRisky(medication.name, openid),
+    isTextRisky(medication.dosage, openid),
+    isImageRisky(medication.imageFileId)
+  ])
+  if (nameRisky) {
     return { code: -2, msg: '药品名称包含违规内容，请修改后重试', data: null }
   }
-  if (await isTextRisky(medication.dosage, openid)) {
+  if (dosageRisky) {
     return { code: -2, msg: '剂量说明包含违规内容，请修改后重试', data: null }
+  }
+  if (imageRisky) {
+    return { code: -2, msg: '药品图片不合规，请更换后重试', data: null }
+  }
+
+  // 若更换了图片，清理旧图片文件（失败仅记日志，不阻断流程）
+  const oldImageFileId = existing.data.imageFileId
+  const newImageFileId = medication.imageFileId || ''
+  if (oldImageFileId && oldImageFileId !== newImageFileId) {
+    try {
+      await cloud.deleteFile({ fileList: [oldImageFileId] })
+    } catch (err) {
+      console.warn('清理旧药品图片失败:', err)
+    }
   }
 
   await db.collection('medications').doc(id).update({
     data: {
       name: medication.name,
       dosage: medication.dosage,
+      dosageUnit: medication.dosageUnit || '',
       time: medication.time,
-      periodLabel: medication.periodLabel
+      periodLabel: medication.periodLabel,
+      imageFileId: newImageFileId
     }
   })
 
@@ -136,6 +184,16 @@ async function deleteMedication(id, openid) {
   if (existing.data._openid !== openid) {
     return { code: -1, msg: '无权删除该记录', data: null }
   }
+
+  // 清理云存储图片（失败仅记日志）
+  if (existing.data.imageFileId) {
+    try {
+      await cloud.deleteFile({ fileList: [existing.data.imageFileId] })
+    } catch (err) {
+      console.warn('清理药品图片失败:', err)
+    }
+  }
+
   await db.collection('medications').doc(id).remove()
   return { code: 0, msg: 'success', data: null }
 }

@@ -19,7 +19,7 @@ exports.main = async (event, context) => {
     // 并发请求：实况天气 + 3天预报（免费版仅支持这些）
     const [nowRes, dailyRes] = await Promise.all([
       fetchSeniverse('/weather/now.json', location),
-      fetchSeniverse('/weather/daily.json', location + '&start=0&days=3')
+      fetchSeniverse('/weather/daily.json', location + '&start=0&days=4')
     ])
 
     // 实况天气
@@ -199,7 +199,7 @@ function getMockData(lat, lon, errorMsg) {
   const mockDate = new Date()
   const dates = []
   
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     const d = new Date(mockDate)
     d.setDate(d.getDate() + i)
     dates.push(d.toISOString().split('T')[0])
@@ -221,7 +221,8 @@ function getMockData(lat, lon, errorMsg) {
       forecast: [
         { date: dates[0], textDay: '多云', textNight: '晴', tempMax: '25', tempMin: '18' },
         { date: dates[1], textDay: '晴', textNight: '晴', tempMax: '27', tempMin: '19' },
-        { date: dates[2], textDay: '小雨', textNight: '多云', tempMax: '22', tempMin: '16' }
+        { date: dates[2], textDay: '小雨', textNight: '多云', tempMax: '22', tempMin: '16' },
+        { date: dates[3], textDay: '晴', textNight: '多云', tempMax: '24', tempMin: '17' }
       ],
       advice: '天气舒适，穿长袖衬衫或薄外套即可。',
       adviceTitle: '穿长袖',
