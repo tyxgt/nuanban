@@ -27,3 +27,23 @@ page {
   font-size: 24px;
   font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif;
 }
+
+/* 图片骨架屏（全局复用）：套在 overflow:hidden + 有圆角的容器内会自动被裁成对应形状 */
+.img-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #F0F0F0 25%, #E4E9F0 37%, #F0F0F0 63%);
+  background-size: 400% 100%;
+  animation: img-skeleton-shimmer 1.4s ease infinite;
+}
+@keyframes img-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}

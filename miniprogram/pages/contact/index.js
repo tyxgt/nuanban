@@ -14,6 +14,9 @@ Page({
     submitting: false,
     showActionSheet: false,
     currentContact: {},
+    contactImgStatus: {},     // 列表头像加载状态映射 { [_id]: 'loaded' | 'error' }，未出现的 key 视为加载中
+    avatarPreviewLoaded: false, // 弹窗头像预览是否已加载完成
+    avatarPreviewError: false,  // 弹窗头像预览是否加载失败
     newContact: {
       name: '',
       phone: '',
@@ -35,12 +38,27 @@ Page({
   },
 
   async loadContacts() {
-    this.setData({ loading: true })
+    // 页面当前完全没有数据（冷启动/实例被回收重建）时，先用本地缓存秒开，避免转圈；
+    // 已有数据（切 tab 回来）则保持现状，不受影响
+    const hasData = this.data.contacts.length > 0
+    let usedCache = false
+
+    if (!hasData) {
+      const cache = wx.getStorageSync('contacts_cache')
+      if (cache && Array.isArray(cache.data)) {
+        this.setData({ contacts: cache.data, contactImgStatus: {}, loading: false })
+        usedCache = true
+      } else {
+        this.setData({ loading: true })
+      }
+    }
+
     try {
       const result = await getContacts()
       if (result.code === 0 && result.data) {
-        this.setData({ contacts: result.data })
-      } else {
+        this.setData({ contacts: result.data, contactImgStatus: {} })
+        wx.setStorageSync('contacts_cache', { data: result.data })
+      } else if (!hasData && !usedCache) {
         this.setData({ contacts: [] })
         if (result.code !== 0) {
           wx.showToast({ title: result.msg || '获取联系人失败', icon: 'none' })
@@ -48,8 +66,11 @@ Page({
       }
     } catch (err) {
       console.error('获取联系人失败:', err)
-      this.setData({ contacts: [] })
-      wx.showToast({ title: '获取联系人失败', icon: 'none' })
+      // 已经展示着数据（内存或缓存）时静默失败，避免频繁打扰；完全没数据才提示
+      if (!hasData && !usedCache) {
+        this.setData({ contacts: [] })
+        wx.showToast({ title: '获取联系人失败', icon: 'none' })
+      }
     } finally {
       this.setData({ loading: false })
     }
@@ -111,6 +132,8 @@ Page({
       showDialog: true,
       dialogMode: 'edit',
       editingId: currentContact._id,
+      avatarPreviewLoaded: false,
+      avatarPreviewError: false,
       newContact: {
         name: currentContact.name,
         phone: currentContact.phone,
@@ -151,6 +174,8 @@ Page({
       showDialog: true,
       dialogMode: 'add',
       editingId: '',
+      avatarPreviewLoaded: false,
+      avatarPreviewError: false,
       newContact: {
         name: '',
         phone: '',
@@ -180,7 +205,11 @@ Page({
       sizeType: ['compressed'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath
-        this.setData({ 'newContact.avatarTempPath': tempFilePath })
+        this.setData({
+          'newContact.avatarTempPath': tempFilePath,
+          avatarPreviewLoaded: false,
+          avatarPreviewError: false
+        })
       },
       fail: () => {
         // 用户取消，不提示
@@ -192,8 +221,28 @@ Page({
   onRemoveAvatar() {
     this.setData({
       'newContact.avatarTempPath': '',
-      'newContact.avatarFileId': ''
+      'newContact.avatarFileId': '',
+      avatarPreviewLoaded: false,
+      avatarPreviewError: false
     })
+  },
+
+  // 列表头像加载完成/失败
+  onAvatarImgLoad(e) {
+    const { id } = e.currentTarget.dataset
+    this.setData({ [`contactImgStatus.${id}`]: 'loaded' })
+  },
+  onAvatarImgError(e) {
+    const { id } = e.currentTarget.dataset
+    this.setData({ [`contactImgStatus.${id}`]: 'error' })
+  },
+
+  // 弹窗头像预览加载完成/失败
+  onAvatarPreviewLoad() {
+    this.setData({ avatarPreviewLoaded: true, avatarPreviewError: false })
+  },
+  onAvatarPreviewError() {
+    this.setData({ avatarPreviewError: true, avatarPreviewLoaded: false })
   },
 
   async confirmAdd() {

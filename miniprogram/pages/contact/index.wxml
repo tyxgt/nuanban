@@ -25,12 +25,23 @@
       <!-- 头像 -->
       <view class="avatar-wrap">
         <image
-          wx:if="{{item.avatarFileId}}"
+          wx:if="{{item.avatarFileId && contactImgStatus[item._id] !== 'error'}}"
           class="avatar-img"
           src="{{item.avatarFileId}}"
           mode="aspectFill"
+          lazy-load="{{true}}"
+          data-id="{{item._id}}"
+          bindload="onAvatarImgLoad"
+          binderror="onAvatarImgError"
         />
-        <view wx:else class="avatar-fallback">{{item.name[0]}}</view>
+        <view
+          wx:if="{{item.avatarFileId && contactImgStatus[item._id] !== 'loaded' && contactImgStatus[item._id] !== 'error'}}"
+          class="img-skeleton"
+        ></view>
+        <view
+          wx:if="{{!item.avatarFileId || contactImgStatus[item._id] === 'error'}}"
+          class="avatar-fallback"
+        >{{item.name[0]}}</view>
       </view>
 
       <!-- 姓名 -->
@@ -70,14 +81,25 @@
           class="avatar-preview"
           src="{{newContact.avatarTempPath}}"
           mode="aspectFill"
+          bindload="onAvatarPreviewLoad"
+          binderror="onAvatarPreviewError"
         />
         <image
-          wx:elif="{{newContact.avatarFileId}}"
+          wx:elif="{{newContact.avatarFileId && !avatarPreviewError}}"
           class="avatar-preview"
           src="{{newContact.avatarFileId}}"
           mode="aspectFill"
+          bindload="onAvatarPreviewLoad"
+          binderror="onAvatarPreviewError"
         />
-        <view wx:else class="avatar-placeholder">+</view>
+        <view
+          wx:if="{{(newContact.avatarTempPath || newContact.avatarFileId) && !avatarPreviewLoaded && !avatarPreviewError}}"
+          class="img-skeleton"
+        ></view>
+        <view
+          wx:if="{{!newContact.avatarTempPath && (!newContact.avatarFileId || avatarPreviewError)}}"
+          class="avatar-placeholder"
+        >+</view>
       </view>
       <view class="avatar-tip">点击{{newContact.avatarTempPath || newContact.avatarFileId ? '更换' : '上传'}}头像（可选）</view>
 

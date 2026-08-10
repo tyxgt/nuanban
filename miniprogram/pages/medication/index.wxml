@@ -62,8 +62,24 @@
 
         <!-- 药品图片：无论是否上传过图片都占位，保持列表文字对齐一致 -->
         <view class="med-img-wrap">
-          <image wx:if="{{item.imageFileId}}" class="med-img" src="{{item.imageFileId}}" mode="aspectFill" />
-          <text wx:else class="med-img-placeholder">💊</text>
+          <image
+            wx:if="{{item.imageFileId && medImgStatus[item._id] !== 'error'}}"
+            class="med-img"
+            src="{{item.imageFileId}}"
+            mode="aspectFill"
+            lazy-load="{{true}}"
+            data-id="{{item._id}}"
+            bindload="onMedImgLoad"
+            binderror="onMedImgError"
+          />
+          <view
+            wx:if="{{item.imageFileId && medImgStatus[item._id] !== 'loaded' && medImgStatus[item._id] !== 'error'}}"
+            class="img-skeleton"
+          ></view>
+          <text
+            wx:if="{{!item.imageFileId || medImgStatus[item._id] === 'error'}}"
+            class="med-img-placeholder"
+          >💊</text>
         </view>
 
         <!-- 药品信息 -->
@@ -123,14 +139,25 @@
           class="med-image-preview"
           src="{{newMed.imageTempPath}}"
           mode="aspectFill"
+          bindload="onMedPreviewLoad"
+          binderror="onMedPreviewError"
         />
         <image
-          wx:elif="{{newMed.imageFileId}}"
+          wx:elif="{{newMed.imageFileId && !medPreviewError}}"
           class="med-image-preview"
           src="{{newMed.imageFileId}}"
           mode="aspectFill"
+          bindload="onMedPreviewLoad"
+          binderror="onMedPreviewError"
         />
-        <view wx:else class="med-image-placeholder">+</view>
+        <view
+          wx:if="{{(newMed.imageTempPath || newMed.imageFileId) && !medPreviewLoaded && !medPreviewError}}"
+          class="img-skeleton"
+        ></view>
+        <view
+          wx:if="{{!newMed.imageTempPath && (!newMed.imageFileId || medPreviewError)}}"
+          class="med-image-placeholder"
+        >+</view>
         <view
           class="med-image-remove"
           wx:if="{{newMed.imageTempPath || newMed.imageFileId}}"

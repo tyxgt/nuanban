@@ -194,6 +194,7 @@
 
 /* 药品图片（列表缩略图，无图片时显示占位图标，保持列表文字对齐一致） */
 .med-img-wrap {
+  position: relative;
   width: 96rpx;
   height: 96rpx;
   border-radius: 16rpx;

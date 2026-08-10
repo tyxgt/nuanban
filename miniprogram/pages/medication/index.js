@@ -112,6 +112,9 @@ Page({
     dialogMode: 'add',
     editingId: '',
     loading: false,
+    medImgStatus: {},      // 列表缩略图加载状态映射 { [_id]: 'loaded' | 'error' }，未出现的 key 视为加载中
+    medPreviewLoaded: false, // 弹窗药品图预览是否已加载完成
+    medPreviewError: false,  // 弹窗药品图预览是否加载失败
     periodOptions: PERIOD_OPTIONS,
     periodIndex: 0,
     dosageUnitOptions: DOSAGE_UNIT_OPTIONS,
@@ -176,21 +179,40 @@ Page({
   },
 
   async loadMedications() {
-    this.setData({ loading: true })
+    // 页面当前完全没有数据（冷启动/实例被回收重建）时，先用本地缓存跑一遍实时状态计算秒开，避免转圈；
+    // 已有数据（切 tab 回来）则保持现状，不受影响
+    const hasData = this.data.medications.length > 0
+    let usedCache = false
+
+    if (!hasData) {
+      const cache = wx.getStorageSync('medications_cache')
+      if (cache && Array.isArray(cache.data)) {
+        this.processMedications(cache.data)
+        this.setData({ loading: false })
+        usedCache = true
+      } else {
+        this.setData({ loading: true })
+      }
+    }
+
     try {
       const result = await getMedications()
       if (result.code === 0 && result.data) {
         this.processMedications(result.data)
-      } else {
-        this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
+        wx.setStorageSync('medications_cache', { data: result.data })
+      } else if (!hasData && !usedCache) {
+        this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false, medImgStatus: {} })
         if (result.code !== 0) {
           wx.showToast({ title: result.msg || '获取吃药列表失败', icon: 'none' })
         }
       }
     } catch (err) {
       console.error('获取吃药列表失败:', err)
-      this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false })
-      wx.showToast({ title: '获取吃药列表失败', icon: 'none' })
+      // 已经展示着数据（内存或缓存）时静默失败，避免频繁打扰；完全没数据才提示
+      if (!hasData && !usedCache) {
+        this.setData({ medications: [], nextMed: null, countdown: '', isUrgent: false, medImgStatus: {} })
+        wx.showToast({ title: '获取吃药列表失败', icon: 'none' })
+      }
     } finally {
       this.setData({ loading: false })
     }
@@ -241,7 +263,8 @@ Page({
       nextMed,
       countdown,
       isUrgent,
-      allTaken
+      allTaken,
+      medImgStatus: {}
     })
   },
 
@@ -360,6 +383,8 @@ Page({
       editingId: currentMed._id,
       periodIndex: periodIndex >= 0 ? periodIndex : 0,
       dosageUnitIndex: dosageUnitIndex >= 0 ? dosageUnitIndex : 0,
+      medPreviewLoaded: false,
+      medPreviewError: false,
       newMed: {
         name: currentMed.name,
         dosage: currentMed.dosage,
@@ -402,6 +427,8 @@ Page({
       editingId: '',
       periodIndex: periodIndex >= 0 ? periodIndex : 0,
       dosageUnitIndex: 0,
+      medPreviewLoaded: false,
+      medPreviewError: false,
       newMed: {
         name: '',
         dosage: '',
@@ -434,7 +461,11 @@ Page({
       sizeType: ['compressed'],
       success: (res) => {
         const tempFilePath = res.tempFiles[0].tempFilePath
-        this.setData({ 'newMed.imageTempPath': tempFilePath })
+        this.setData({
+          'newMed.imageTempPath': tempFilePath,
+          medPreviewLoaded: false,
+          medPreviewError: false
+        })
       },
       fail: () => {
         // 用户取消，不提示
@@ -446,8 +477,28 @@ Page({
   onRemoveImage() {
     this.setData({
       'newMed.imageTempPath': '',
-      'newMed.imageFileId': ''
+      'newMed.imageFileId': '',
+      medPreviewLoaded: false,
+      medPreviewError: false
     })
+  },
+
+  // 列表缩略图加载完成/失败
+  onMedImgLoad(e) {
+    const { id } = e.currentTarget.dataset
+    this.setData({ [`medImgStatus.${id}`]: 'loaded' })
+  },
+  onMedImgError(e) {
+    const { id } = e.currentTarget.dataset
+    this.setData({ [`medImgStatus.${id}`]: 'error' })
+  },
+
+  // 弹窗药品图预览加载完成/失败
+  onMedPreviewLoad() {
+    this.setData({ medPreviewLoaded: true, medPreviewError: false })
+  },
+  onMedPreviewError() {
+    this.setData({ medPreviewError: true, medPreviewLoaded: false })
   },
 
   onTimeChange(e) {
