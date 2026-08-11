@@ -2,30 +2,29 @@
 const { getMedications, addMedication, updateMedStatus, updateMedication, deleteMedication } = require('../../utils/medication.js')
 
 // 时段配置
-const PERIOD_OPTIONS = ['早餐前', '早餐后', '午餐前', '午餐后', '晚餐前', '晚餐后', '睡前']
+const PERIOD_OPTIONS = ['餐前', '餐后', '睡前']
 
 // 用量单位配置
 const DOSAGE_UNIT_OPTIONS = ['片', '粒', '袋', '支', '毫升', '毫克', '滴', '其他']
 
-// 根据时间段获取图标
-function getPeriodIcon(periodLabel) {
-  if (!periodLabel) return '💊'
-  if (periodLabel.includes('早') || periodLabel.includes('早餐')) return '☀️'
-  if (periodLabel.includes('午') || periodLabel.includes('午餐')) return '🌤️'
-  if (periodLabel.includes('晚') || periodLabel.includes('晚餐')) return '🌙'
-  if (periodLabel.includes('睡前') || periodLabel.includes('睡')) return '🌙'
-  return '💊'
+// 根据具体服药时间获取图标（时段文案已统一为餐前/餐后，图标改用时间点区分早中晚）
+function getPeriodIcon(time) {
+  if (!time) return '💊'
+  const hour = parseInt(time.split(':')[0])
+  if (hour < 11) return '☀️'
+  if (hour < 17) return '🌤️'
+  return '🌙'
 }
 
 // 根据时间计算时段标签（只返回PERIOD_OPTIONS中的值，保证picker联动一致）
 function getPeriodByTime(time) {
   const hour = parseInt(time.split(':')[0])
-  if (hour < 6) return '早餐前'
-  if (hour < 9) return '早餐后'
-  if (hour < 12) return '午餐前'
-  if (hour < 14) return '午餐后'
-  if (hour < 18) return '晚餐前'
-  if (hour < 21) return '晚餐后'
+  if (hour < 6) return '餐前'
+  if (hour < 9) return '餐后'
+  if (hour < 12) return '餐前'
+  if (hour < 14) return '餐后'
+  if (hour < 18) return '餐前'
+  if (hour < 21) return '餐后'
   return '睡前'
 }
 
@@ -124,7 +123,7 @@ Page({
       dosage: '',
       dosageUnit: '片',
       time: '08:00',
-      periodLabel: '早餐后',
+      periodLabel: '餐后',
       imageFileId: '',    // 已上传的云存储 fileID（编辑模式初始值）
       imageTempPath: ''   // 新选择的本地临时路径（预览用）
     },
@@ -227,7 +226,7 @@ Page({
     // 处理每条药品记录
     const processedMeds = meds.map(med => {
       const statusInfo = getStatusInfo(med)
-      const periodIcon = getPeriodIcon(med.periodLabel)
+      const periodIcon = getPeriodIcon(med.time)
       return {
         ...med,
         periodIcon,
@@ -258,13 +257,32 @@ Page({
 
     const allTaken = !nextMed && processedMeds.length > 0
 
+    // 缩略图加载状态按 _id + imageFileId 沿用旧值，避免每次切 tab / 增删其他条目触发的重新拉取
+    // 把已经加载成功的图片状态清空——此时 <image> 的 src 并未真正变化，
+    // 小程序不会重新触发 load 事件，骨架屏就会永久盖住已经显示过的图片。
+    // 只有图片真正变化（换图/新增）时才重置为未加载，交给 <image> 重新触发 load/error。
+    // 注意：只沿用"已加载成功"的状态，不沿用"加载失败"——云文件解析偶发失败后，
+    // 若把 error 也无限期沿用下去，这张图就会在本次会话里永久显示失败占位符，
+    // 哪怕后来真的能加载成功。每次真正刷新列表（切 tab、增删其他条目等）时，
+    // 都应该让之前失败的图片重新有一次加载机会。
+    const prevStatus = this.data.medImgStatus || {}
+    const prevImageMap = {}
+    this.data.medications.forEach(m => { prevImageMap[m._id] = m.imageFileId })
+
+    const medImgStatus = {}
+    processedMeds.forEach(m => {
+      if (prevStatus[m._id] === 'loaded' && prevImageMap[m._id] === m.imageFileId) {
+        medImgStatus[m._id] = 'loaded'
+      }
+    })
+
     this.setData({
       medications: processedMeds,
       nextMed,
       countdown,
       isUrgent,
       allTaken,
-      medImgStatus: {}
+      medImgStatus
     })
   },
 
@@ -414,13 +432,9 @@ Page({
   showAddDialog() {
     const now = new Date()
     const hour = now.getHours()
-    const periodIndex = PERIOD_OPTIONS.findIndex(p => {
-      if (hour < 9) return p.includes('早')
-      if (hour < 14) return p.includes('午')
-      if (hour < 21) return p.includes('晚')
-      return p.includes('睡前')
-    })
-    
+    const periodLabel = getPeriodByTime(`${String(hour).padStart(2, '0')}:00`)
+    const periodIndex = PERIOD_OPTIONS.findIndex(p => p === periodLabel)
+
     this.setData({
       showDialog: true,
       dialogMode: 'add',

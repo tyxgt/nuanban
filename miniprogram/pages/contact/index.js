@@ -37,6 +37,28 @@ Page({
     wx.stopPullDownRefresh()
   },
 
+  // 头像加载状态按 _id + avatarFileId 沿用旧值，避免每次切 tab / 增删其他联系人触发的重新拉取
+  // 把已经加载成功的状态清空——此时 <image> 的 src 并未真正变化，
+  // 小程序不会重新触发 load 事件，骨架屏就会永久盖住已经显示过的头像。
+  // 只有头像真正变化（换头像/新增联系人）时才重置为未加载，交给 <image> 重新触发 load/error。
+  // 注意：只沿用"已加载成功"的状态，不沿用"加载失败"——云文件解析偶发失败后，
+  // 若把 error 也无限期沿用下去，这个头像就会在本次会话里永久显示失败占位符，
+  // 哪怕后来真的能加载成功。每次真正刷新列表（切 tab、增删其他联系人等）时，
+  // 都应该让之前失败的头像重新有一次加载机会。
+  mergeContactImgStatus(newContacts) {
+    const prevStatus = this.data.contactImgStatus || {}
+    const prevAvatarMap = {}
+    this.data.contacts.forEach(c => { prevAvatarMap[c._id] = c.avatarFileId })
+
+    const contactImgStatus = {}
+    newContacts.forEach(c => {
+      if (prevStatus[c._id] === 'loaded' && prevAvatarMap[c._id] === c.avatarFileId) {
+        contactImgStatus[c._id] = 'loaded'
+      }
+    })
+    return contactImgStatus
+  },
+
   async loadContacts() {
     // 页面当前完全没有数据（冷启动/实例被回收重建）时，先用本地缓存秒开，避免转圈；
     // 已有数据（切 tab 回来）则保持现状，不受影响
@@ -46,7 +68,7 @@ Page({
     if (!hasData) {
       const cache = wx.getStorageSync('contacts_cache')
       if (cache && Array.isArray(cache.data)) {
-        this.setData({ contacts: cache.data, contactImgStatus: {}, loading: false })
+        this.setData({ contacts: cache.data, contactImgStatus: this.mergeContactImgStatus(cache.data), loading: false })
         usedCache = true
       } else {
         this.setData({ loading: true })
@@ -56,7 +78,7 @@ Page({
     try {
       const result = await getContacts()
       if (result.code === 0 && result.data) {
-        this.setData({ contacts: result.data, contactImgStatus: {} })
+        this.setData({ contacts: result.data, contactImgStatus: this.mergeContactImgStatus(result.data) })
         wx.setStorageSync('contacts_cache', { data: result.data })
       } else if (!hasData && !usedCache) {
         this.setData({ contacts: [] })
