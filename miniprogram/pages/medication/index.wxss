@@ -223,19 +223,25 @@
 .med-top {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12rpx;
+  row-gap: 8rpx;
   margin-bottom: 12rpx;
 }
 
 .med-time-label {
   font-size: 42rpx;
   color: #999999;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .med-time {
   font-size: 60rpx;
   font-weight: 800;
   color: #1A1A1A;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .med-status-badge {
@@ -244,6 +250,8 @@
   padding: 6rpx 16rpx;
   border-radius: 20rpx;
   margin-left: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .med-status-badge.taken {
