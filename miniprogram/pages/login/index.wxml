@@ -1,7 +1,7 @@
 <view class="login-page">
   <view class="login-header">
     <view class="login-title">设置昵称</view>
-    <view class="login-subtitle">用于个性化您的暖伴</view>
+    <view class="login-subtitle">用于个性化您的暖阳叮嘱</view>
   </view>
 
   <view class="login-form">
